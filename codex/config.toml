@@ -1,60 +1,7 @@
 version = 1
 name = "ai-instructions-codex-workspace"
 default_language = "zh-CN"
-agent_directory = ".codex/agents"
-default_agent = "code-dev"
 
-[execution]
-mode = "role-phased"
-real_subagents = "only_when_user_explicitly_requests"
-phase_heading_format = "## [Agent: {agent}]"
-ask_when_ambiguous = true
-preserve_user_changes = true
-
-[verification]
-required_after_changes = true
-explain_when_not_run = true
-default_commands = [
-  "uv run pytest tests/ -v",
-  "uv run ruff format src/",
-  "uv run ruff check src/ --fix",
-]
-
-[[agents]]
-id = "code-dev"
-file = ".codex/agents/code-dev.toml"
-writes_files = true
-purpose = "Code implementation, debugging, performance optimization, data processing, databases, tests."
-triggers_zh = ["写代码", "改代码", "实现", "debug", "测试", "脚本", "SQL", "ETL", "数据库", "性能优化", "因子", "回测"]
-triggers_en = ["write code", "implement", "refactor", "debug", "add tests", "performance", "vectorize", "SQL", "ETL"]
-
-[[agents]]
-id = "code-review"
-file = ".codex/agents/code-review.toml"
-writes_files = false
-purpose = "Independent code review, bug hunting, risk assessment, pre-merge inspection."
-triggers_zh = ["审代码", "code review", "找 bug", "检查", "风险评估", "合并前", "隐患"]
-triggers_en = ["review code", "code review", "audit", "find bugs", "check for issues", "before merge"]
-
-[[agents]]
-id = "writer"
-file = ".codex/agents/writer.toml"
-writes_files = true
-purpose = "Content writing, article drafting, notes, titles, polishing, outlines, social posts."
-triggers_zh = ["写文章", "写笔记", "公众号", "小红书", "标题", "文案", "润色", "提纲", "配图", "封面"]
-triggers_en = ["write article", "draft content", "draft a post", "polish copy", "headline"]
-
-[[workflows]]
-name = "code_then_review"
-when = "Non-trivial implementation or bug fix needs independent review."
-sequence = ["code-dev", "code-review"]
-
-[[workflows]]
-name = "data_to_content"
-when = "Content needs data processing, charts, backtests, or computations."
-sequence = ["code-dev", "writer"]
-
-[[workflows]]
-name = "writing_with_computation"
-when = "Writing task temporarily needs scripts, calculations, data cleaning, or charts."
-sequence = ["writer", "code-dev", "writer"]
+[agents]
+max_threads = 6
+max_depth = 1

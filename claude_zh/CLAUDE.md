@@ -81,6 +81,11 @@
 
 ## 三、通用行为约束
 
+### 3.0 Python 环境
+
+- 优先使用 `uv` 管理 Python 环境和依赖：`uv run`、`uv sync`、`uv add`、`uv pip`
+- 仅在项目不支持 `uv`（无 `uv.lock` 或 `pyproject.toml` 未配置 `uv`）时才回退到 `pip` / `python -m`
+
 ### 3.1 语言
 
 - 沟通用中文

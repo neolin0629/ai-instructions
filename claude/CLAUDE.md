@@ -81,6 +81,11 @@ If the task is ambiguous or spans multiple agents, **ask the user first**. Don't
 
 ## 3. Universal Behavioral Constraints
 
+### 3.0 Python Environment
+
+- Prefer `uv` for Python environment and dependency management: `uv run`, `uv sync`, `uv add`, `uv pip`
+- Only fall back to `pip` / `python -m` when the project does not support `uv` (no `uv.lock` or `pyproject.toml` not configured for `uv`)
+
 ### 3.1 Language
 
 - Communicate in Chinese

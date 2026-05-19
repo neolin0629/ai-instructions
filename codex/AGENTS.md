@@ -1,22 +1,20 @@
 # Codex CLI Universal Instructions
 
-This document is the universal entry specification for Codex CLI. It defines global collaboration methods, agent routing, change boundaries, and verification requirements. Specific agent details are located in `agents/*.toml`.
+This document is the universal entry specification for Codex CLI. It defines global collaboration methods, agent routing, change boundaries, and verification requirements. Specific agent details are located in `agents/*.toml` (loaded by Codex as custom subagents).
 
 ## 1. Read Order
 
 Codex reads the following in order before starting work:
 
-1. `AGENTS.md`: Universal behaviors, boundaries, and output specifications.
-2. `config.toml`: Agent registry, keyword routing, and multi-agent workflows.
-3. `agents/<agent>.toml`: Specific agent details corresponding to the current task.
+1. `AGENTS.md`: Universal behaviors, boundaries, agent routing, and output specifications.
+2. `agents/<agent>.toml`: Agent-specific personality, behavior boundaries, and output format.
 
 In case of rule conflicts, the priority is:
 
 1. Explicit instructions from the user for the current task.
 2. `AGENTS.md` in the nearest directory.
 3. This file.
-4. `config.toml`.
-5. `agents/*.toml`.
+4. `agents/*.toml`.
 
 ## 2. Core Behavior
 
@@ -34,26 +32,34 @@ For each task, determine the type first, then select the lead agent.
 
 | Task Type | Lead Agent | File |
 |---|---|---|
-| Implementation, bug fixes, testing, scripting, SQL, ETL, data processing, performance optimization, quant backtesting | `code-dev` | `agents/code-dev.toml` |
-| Code review, bug hunting, risk assessment, pre-merge checks | `code-review` | `agents/code-review.toml` |
+| Implementation, bug fixes, testing, scripting, SQL, ETL, data processing, performance optimization, quant backtesting | `code_dev` | `agents/code_dev.toml` |
+| Code review, bug hunting, risk assessment, pre-merge checks | `code_review` | `agents/code_review.toml` |
 | Articles, notes, official accounts, Xiaohongshu, headlines, copy, polishing, outlines, illustrations | `writer` | `agents/writer.toml` |
 
 Routing Priority:
 
 1. User explicitly specifies an agent.
 2. User explicitly specifies a workflow.
-3. Trigger rules in `config.toml`.
+3. Keyword matching (see trigger keywords below).
 4. Ask the user.
 
 When user intent is unclear, ask first; do not execute by default.
+
+### Trigger Keywords
+
+**code_dev** — 写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测 / write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL
+
+**code_review** — 审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患 / review code, code review, audit, find bugs, check for issues, before merge
+
+**writer** — 写文章、写笔记、写公众号、写小红书、起标题、改文案、润色、列提纲、做内容、写一篇、起钩子、改稿、配图、封面 / write article, draft content, draft a post, polish copy, headline, outline
 
 ## 4. Multi-Agent Mode
 
 Even when Codex has only one primary execution context, it must work in stages using roles. Stage titles are fixed as:
 
 ```markdown
-## [Agent: code-dev]
-## [Agent: code-review]
+## [Agent: code_dev]
+## [Agent: code_review]
 ## [Agent: writer]
 ```
 
@@ -63,9 +69,9 @@ Common workflows:
 
 | Scenario | Sequence |
 |---|---|
-| Review after implementation | `code-dev` -> `code-review` |
-| Data-backed content | `code-dev` -> `writer` |
-| Calculation needed during writing | `writer` -> `code-dev` -> `writer` |
+| Review after implementation | `code_dev` -> `code_review` |
+| Data-backed content | `code_dev` -> `writer` |
+| Calculation needed during writing | `writer` -> `code_dev` -> `writer` |
 
 Sub-agent boundaries:
 
@@ -76,7 +82,7 @@ Sub-agent boundaries:
 
 ## 5. Coding Baseline
 
-Coding tasks default to `agents/code-dev.toml` with the following core constraints:
+Coding tasks default to `agents/code_dev.toml` with the following core constraints:
 
 - Python 3.10+.
 - New Python files must use `from __future__ import annotations` as the first line.
@@ -103,7 +109,7 @@ Quant, backtesting, and data processing tasks must adhere to:
 
 ## 7. Review Rules
 
-When entering the `code-review` phase:
+When entering the `code_review` phase:
 
 - Read-only; do not edit files.
 - List issues first, then acknowledge strengths.
