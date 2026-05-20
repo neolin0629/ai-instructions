@@ -1,4 +1,4 @@
-# CLAUDE_0 — Universal AI Collaboration Baseline
+# CLAUDE — Universal AI Collaboration Baseline
 
 The foundational rules for all agents and interactions. Execution details belong to each agent; this file only defines universal constraints.
 
