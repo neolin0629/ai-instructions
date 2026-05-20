@@ -10,12 +10,14 @@ The repository is organized by tool and language. Language-specific directories 
 - `codex_zh/`: Chinese instructions and configurations for Codex CLI.
 - `claude/`: English instructions for Claude Code.
 - `claude_zh/`: Chinese instructions for Claude Code.
+- `gemini/`: English instructions for Antigravity (Gemini).
+- `gemini_zh/`: Chinese instructions for Antigravity (Gemini).
 
 ## Core Files & Architecture
 
 The instruction architecture follows a hierarchical design where the entry file handles both global rules and the routing of specialized sub-agents.
 
-### 1. `AGENTS.md` / `CLAUDE.md` (Universal Entry & Routing)
+### 1. `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (Universal Entry & Routing)
 This is the **global entry point** and primary rulebook. It handles:
 - **Core Behavior**: Communication language, fundamental principles (e.g., "Think before coding", "Simplicity first").
 - **Agent Routing & Registry**: Defines how the system identifies and activates specialized agents (`code_dev`, `code_review`, `writer`) based on task types and keywords.
@@ -50,6 +52,9 @@ These files define the fine-grained behavior, checklists, and technical prioriti
 1. **`CLAUDE.md`**: Foundational rules and agent dispatch logic.
 2. **`agents/<agent>.md`**: Behavioral constraints for the specific agent.
 
+### Antigravity (Gemini)
+1. **`GEMINI.md`**: Foundational rules and agent dispatch logic.
+
 *Specific agent files override global instructions in case of conflict.*
 
 ## Deployment
@@ -61,6 +66,9 @@ These files define the fine-grained behavior, checklists, and technical prioriti
 2. **Claude Code**:
    - Copy `claude/CLAUDE.md` (or `claude_zh/CLAUDE.md`) to your project root.
    - Reference specialized agents from the `agents/` folder in your prompt or context.
+
+3. **Antigravity (Gemini)**:
+   - Copy `gemini/GEMINI.md` (or `gemini_zh/GEMINI.md`) to your project root.
 
 ## Modifying Instructions
 

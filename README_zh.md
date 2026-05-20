@@ -10,12 +10,14 @@
 - `codex_zh/`: Codex CLI 的中文指令和配置。
 - `claude/`: Claude Code 的英文指令。
 - `claude_zh/`: Claude Code 的中文指令。
+- `gemini/`: Antigravity (Gemini) 的英文指令。
+- `gemini_zh/`: Antigravity (Gemini) 的中文指令。
 
 ## 核心文件与架构
 
 指令架构采用分层设计，入口文件同时承担全局规则制定与专业子 Agent 路由的任务。
 
-### 1. `AGENTS.md` / `CLAUDE.md` (通用入口与路由)
+### 1. `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (通用入口与路由)
 这是**全局入口点**和核心规则手册。它定义了：
 - **核心行为**: 沟通语言、基本原则（如“先思考再编码”、“简单至上”）。
 - **Agent 路由与注册**: 定义系统如何根据任务类型和关键词识别并激活专业 Agent（`code_dev`、`code_review`、`writer`）。
@@ -50,6 +52,9 @@
 1. **`CLAUDE.md`**: 基础规则与 Agent 分发逻辑。
 2. **`agents/<agent>.md`**: 特定 Agent 的行为约束。
 
+### Antigravity (Gemini)
+1. **`GEMINI.md`**: 基础规则与 Agent 分发逻辑。
+
 *若规则发生冲突，专业 Agent 文件的优先级高于全局指令。*
 
 ## 部署方法
@@ -61,6 +66,9 @@
 2. **Claude Code**:
    - 将 `claude/CLAUDE.md`（或 `claude_zh/CLAUDE.md`）复制到项目根目录。
    - 在提示词或上下文中引用 `agents/` 目录下的专业 Agent 指令。
+
+3. **Antigravity (Gemini)**:
+   - 将 `gemini/GEMINI.md`（或 `gemini_zh/GEMINI.md`）复制到项目根目录。
 
 ## 修改与扩展
 
