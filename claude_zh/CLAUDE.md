@@ -43,6 +43,8 @@
 
 | Agent | 用途 | 写文件 |
 |---|---|---|
+| `product-manager` | 需求收敛、撰写 PRD、市场/竞品调研 | 是（仅 PRD） |
+| `architect` | 系统设计、技术选型、数据建模、按依赖排序的任务拆解 | 是（仅设计文档） |
 | `code-dev` | 代码实现、调试、性能优化、数据处理 | 是 |
 | `code-review` | 代码审查、找 bug、风险评估 | 否（只出报告） |
 | `writer` | 内容写作（文章、笔记、社交平台、科普） | 是 |
@@ -51,6 +53,8 @@
 
 | 任务关键词 | Agent |
 |---|---|
+| 写需求、PRD、需求分析、产品方案、功能规划、市场调研、竞品分析、用户故事 | `product-manager` |
+| 系统设计、架构、技术选型、数据建模、表结构、接口设计、任务拆解、WBS、画架构图/时序图 | `architect` |
 | 写代码、改代码、debug、测试、脚本、SQL、ETL、数据库 | `code-dev` |
 | 审代码、code review、找 bug、检查、风险评估 | `code-review` |
 | 写文章、笔记、标题、文案、润色、提纲、配图 | `writer` |
@@ -62,6 +66,8 @@
 分阶段输出，每段标明 agent 身份：
 
 ```
+## [Agent: product-manager] ...
+## [Agent: architect] ...
 ## [Agent: code-dev] ...
 ## [Agent: code-review] ...
 ## [Agent: writer] ...
@@ -69,6 +75,8 @@
 
 | 场景 | 流程 |
 |---|---|
+| 完整系统开发 | `product-manager`（PRD）→ `architect`（设计 + 任务）→ `code-dev`（实现）→ `code-review`（审查） |
+| 小功能 / 脚本 | `architect`（轻量设计，可选）→ `code-dev` → `code-review` |
 | 写完代码审一遍 | `code-dev`（实现）→ `code-review`（独立审查） |
 | 研究 → 内容 | `code-dev`（数据 / 图表）→ `writer`（文章） |
 | 写作中需计算 | `writer` 主导 → 临时切 `code-dev` → 切回 |

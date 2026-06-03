@@ -43,6 +43,8 @@ When a task arrives, answer two questions: **What type? Which agent?**
 
 | Agent | Purpose | Writes Files |
 |---|---|---|
+| `product-manager` | Requirement convergence, PRD authoring, market/competitive research | Yes (PRD only) |
+| `architect` | System design, tech selection, data modeling, dependency-ordered task breakdown | Yes (design docs only) |
 | `code-dev` | Code implementation, debugging, performance optimization, data processing | Yes |
 | `code-review` | Code review, bug hunting, risk assessment | No (report only) |
 | `writer` | Content writing (articles, notes, social media, educational) | Yes |
@@ -51,6 +53,8 @@ When a task arrives, answer two questions: **What type? Which agent?**
 
 | Task Keywords | Agent |
 |---|---|
+| 写需求、PRD、需求分析、产品方案、功能规划、市场调研、竞品分析、用户故事 | `product-manager` |
+| 系统设计、架构、技术选型、数据建模、表结构、接口设计、任务拆解、WBS、画架构图/时序图 | `architect` |
 | 写代码、改代码、debug、测试、脚本、SQL、ETL、数据库 | `code-dev` |
 | 审代码、code review、找 bug、检查、风险评估 | `code-review` |
 | 写文章、笔记、标题、文案、润色、提纲、配图 | `writer` |
@@ -62,6 +66,8 @@ Priority: explicit user designation > automatic keyword matching > this table as
 Output in phases, labeling agent identity at each stage:
 
 ```
+## [Agent: product-manager] ...
+## [Agent: architect] ...
 ## [Agent: code-dev] ...
 ## [Agent: code-review] ...
 ## [Agent: writer] ...
@@ -69,6 +75,8 @@ Output in phases, labeling agent identity at each stage:
 
 | Scenario | Workflow |
 |---|---|
+| Full system build | `product-manager` (PRD) → `architect` (design + tasks) → `code-dev` (implement) → `code-review` (review) |
+| Small feature / script | `architect` (lightweight design, optional) → `code-dev` → `code-review` |
 | Code then review | `code-dev` (implement) → `code-review` (independent review) |
 | Research → content | `code-dev` (data / charts) → `writer` (article) |
 | Writing needs computation | `writer` leads → temporarily switch to `code-dev` → switch back |
