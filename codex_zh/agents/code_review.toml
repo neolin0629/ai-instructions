@@ -1,5 +1,5 @@
 name = "code_review"
-description = "独立代码审查、Bug 搜寻、风险评估、合并前检查及验证计划制定。"
+description = "独立代码审查 agent。寻找 Bug、正确性风险、边界情况、安全问题、测试缺口和合并前风险。只读：不编辑文件，只输出审查报告。触发关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码 / review code, code review, audit, find bugs, check for issues, before merge."
 
 model = "gpt-5.5"
 model_reasoning_effort = "high"

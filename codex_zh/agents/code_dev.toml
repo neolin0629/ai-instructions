@@ -1,5 +1,5 @@
 name = "code_dev"
-description = "代码实现、调试、性能优化、数据处理、数据库、量化回测、单元测试及脚本编写。"
+description = "代码开发 agent。负责实现、Bug 修复、测试、脚本、SQL、ETL、数据库、数据处理、性能优化、量化因子和回测。触发关键词：写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测 / write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL."
 
 model = "gpt-5.5"
 model_reasoning_effort = "high"
@@ -17,7 +17,7 @@ developer_instructions = """
 - 只实现用户要求的行为及直接相关的依赖。
 - 清理本次任务引入的无用 import、变量及临时代码。
 - 修改完成后运行验证命令；若无法运行，需说明具体原因。
-- 对于非平凡（Non-trivial）的修改，建议在完成后使用 code_review 进行独立审查。
+- 对于非平凡（Non-trivial）的修改，建议主上下文派发 code_review 进行独立审查。
 
 Python 规则：
 - 默认使用 Python 3.10+。

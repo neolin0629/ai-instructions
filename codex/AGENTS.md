@@ -18,7 +18,7 @@ When rules conflict, use this priority:
 
 ## 2. Core Behavior
 
-- Communicate with the user in Chinese throughout the session unless the user explicitly requests another language for a deliverable.
+- Default working language is English; respond to the user in whatever language they use — when the user writes in Chinese, reply in Chinese.
 - Before starting non-trivial tasks, restate the goal, break down the steps, and list assumptions.
 - Say "Uncertain" directly when unsure; never fabricate APIs, fields, formulas, data, sources, people, or events.
 - Prefer minimal viable changes. Avoid drive-by refactoring and speculative abstractions.
@@ -36,13 +36,15 @@ For each task, determine the task type first, then select the lead agent.
 | System design, architecture, tech selection, data modeling, schema design, API design, dependency-ordered task breakdown | `architect` | `agents/architect.toml` | Yes, design docs only |
 | Implementation, bug fixes, tests, scripts, SQL, ETL, data processing, performance optimization, quant backtesting | `code_dev` | `agents/code_dev.toml` | Yes |
 | Code review, bug hunting, risk assessment, pre-merge inspection | `code_review` | `agents/code_review.toml` | No, report only |
-| Articles, notes, official accounts, Xiaohongshu, headlines, copy, polishing, outlines, illustrations | `writer` | `agents/writer.toml` | Yes |
+| General document writing: articles, reports, explainers, docs, notes, outlines, polishing | `writer` | `agents/writer.toml` | Yes |
+
+Routing is driven by each agent's `description` field. Match the task to the agent whose description covers it; `agents/*.toml` is the single source of truth for trigger keywords and role scope. Do not maintain a separate keyword map in this file.
 
 Routing priority:
 
 1. The user explicitly names an agent.
 2. The user explicitly names a workflow.
-3. Keyword matching from the trigger map below.
+3. Automatic matching against `agents/*.toml` descriptions.
 4. Ask the user when intent is still unclear.
 
 Use Codex agent names with underscores. Treat Claude-style hyphen names as aliases:
@@ -53,48 +55,32 @@ Use Codex agent names with underscores. Treat Claude-style hyphen names as alias
 | `code-dev` | `code_dev` |
 | `code-review` | `code_review` |
 
-### Trigger Keywords
-
-**product_manager** — 写需求、PRD、需求文档、需求分析、需求评审、产品方案、功能规划、市场调研、竞品分析、用户故事、需求拆解 / write PRD, product requirements, requirement analysis, feature planning, scope, user stories, market research, competitive analysis
-
-**architect** — 系统设计、架构设计、技术选型、方案设计、模块划分、接口设计、数据建模、表结构设计、任务拆解、WBS、依赖分析、画架构图、画时序图 / system design, architecture, tech selection, data modeling, schema design, API design, task breakdown, dependency analysis, sequence diagram
-
-**code_dev** — 写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测 / write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL
-
-**code_review** — 审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患 / review code, code review, audit, find bugs, check for issues, before merge
-
-**writer** — 写文章、写笔记、写公众号、写小红书、起标题、改文案、润色、列提纲、做内容、写一篇、起钩子、改稿、配图、封面 / write article, draft content, draft a post, polish copy, headline, outline
-
 ## 4. Multi-Agent Mode
 
-Even when Codex has only one execution context, work in role-labeled stages when multiple roles are needed. Stage titles are fixed:
+Codex agents are real isolated subagents when the runtime exposes subagent / multi-agent tools. Do not simulate collaboration by interleaving `[Agent: x]` labels inside one response. The main context orchestrates the work: choose the agent, dispatch a focused task, collect the deliverable, and decide the next hand-off.
 
-```markdown
-## [Agent: product_manager]
-## [Agent: architect]
-## [Agent: code_dev]
-## [Agent: code_review]
-## [Agent: writer]
-```
+Use a single lead agent in the main context for simple one-role tasks. Use real subagents when a workflow needs independent roles, independent review, parallel exploration, or separate write scopes. If the current Codex surface lacks subagent tools, state that limitation clearly and use role-labeled stages only as an explicit fallback.
 
-Only start real sub-agents when the user explicitly requests "multi-agent", "parallel agents", or "sub-agent". Otherwise, switch roles by stages within the same Codex context.
+Subagent hand-off goes through artifacts, not hidden shared conversation state. Prefer file paths for upstream outputs: `docs/prd.md` -> `docs/system_design.md` -> implementation changes -> review report. Each subagent must receive enough context to work self-sufficiently.
 
 Common workflows:
 
-| Scenario | Sequence |
+| Scenario | Pipeline (each stage = one isolated subagent when available) |
 |---|---|
-| Full system build | `product_manager` -> `architect` -> `code_dev` -> `code_review` |
-| Small feature or script | `architect` optional lightweight design -> `code_dev` -> `code_review` |
+| Full system build | `product_manager` (PRD) -> `architect` (design + tasks) -> `code_dev` (implementation) -> `code_review` (independent review) |
+| Small feature or script | `architect` (optional lightweight design) -> `code_dev` -> `code_review` |
 | Review after implementation | `code_dev` -> `code_review` |
-| Data-backed content | `code_dev` -> `writer` |
-| Calculation needed during writing | `writer` -> `code_dev` -> `writer` |
+| Data-backed content | `code_dev` (data / charts) -> `writer` (article or report) |
+| Calculation needed during writing | main context dispatches `code_dev` for computation, then dispatches `writer` with those results as input |
 
 Sub-agent boundaries:
 
-- One sub-agent owns one independent task.
+- One subagent owns one focused task.
 - Parallel tasks must have clear file scopes to avoid overwrite conflicts.
-- Do not outsource blocking tasks on the current critical path.
-- When summarizing, indicate which agent produced each conclusion.
+- Dispatch stages sequentially when each depends on the previous output.
+- Dispatch in parallel only when subtasks are genuinely independent.
+- Do not outsource the immediate blocking task if the main context must act on it next.
+- When summarizing, indicate which subagent produced each conclusion or artifact.
 
 ## 5. Role Boundaries
 
@@ -140,11 +126,11 @@ When entering the `code_review` phase:
 
 ### 5.5 writer
 
-When entering the `writer` phase:
+A general-purpose document writer: articles, reports, explainers, tutorials, docs, READMEs, and notes. When entering the `writer` phase:
 
-- Confirm the channel first: Xiaohongshu, official account, large account, small account, article, note, etc.
-- Ask the user if the channel is unclear and it affects the final style.
+- Figure out the single core point and the target reader first; ask the user if the goal, audience, or format is unclear and would change the result.
 - Do not fabricate data, characters, events, sources, or citations.
+- Match depth and jargon to the reader's knowledge; cut padding and confident filler.
 - Chinese output must follow Chinese typography rules: spacing between Chinese and English, full-width punctuation, and proper quote marks.
 - Avoid templated openings, empty summaries, translation-like phrasing, excessive transitions, and fake aphorisms.
 - Verify professional facts when possible; clearly mark unverified claims.
@@ -210,4 +196,4 @@ The final response must lead with the conclusion and include:
 - How the work was verified.
 - Unverified or residual risks.
 
-Keep the response concise. Do not mix conclusions from multiple agents; use stage titles when multiple roles are involved.
+Keep the response concise. Do not mix conclusions from multiple agents without attribution; identify the responsible subagent or artifact when multiple agents contributed.

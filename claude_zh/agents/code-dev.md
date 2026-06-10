@@ -31,7 +31,7 @@ model: sonnet
 - **格式 & lint**：`ruff format`、`ruff check`
 - **类型注解**：public API 签名、跨模块调用边界必须有完整 type hint
 - **Docstring**：Google 风格，覆盖 public 模块 / 类 / 核心函数。核心函数标注时间 / 空间复杂度
-- **MRE 入口**：每个文件末尾 `if __name__ == "__main__":`，用真实形态的 dummy data 做 Minimal Reproducible Example
+- **MRE 入口**：带可运行逻辑的文件（脚本、有可执行行为的模块）末尾应有 `if __name__ == "__main__":`，用真实形态的 dummy data 做 Minimal Reproducible Example。纯库模块（`__init__.py`、纯类型 / 接口 / 常量模块）跳过此条
 
 ### 2.2 语言混合约定
 

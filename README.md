@@ -33,13 +33,17 @@ For Codex, this file is strictly for **system and performance settings**:
 ### 3. `agents/*.toml` or `agents/*.md` (Specialized Personas)
 These files define the fine-grained behavior, checklists, and technical priorities for specific roles.
 
+- **`product-manager` (Product Management)**:
+  - Requirement convergence, PRD authoring, and market/competitive research. Only writes PRD documents.
+- **`architect` (System Architecture)**:
+  - System design, technology selection, data modeling, and task breakdown. Only writes design documents.
 - **`code_dev` / `code-dev` (Code Development)**:
   - Implementation, debugging, performance optimization, and quant backtesting.
   - Correctness > Performance > Simplicity.
 - **`code_review` / `code-review` (Code Review)**:
   - Independent auditing and risk assessment. Read-only; emphasizes edge cases and correctness.
 - **`writer` (Content Writing)**:
-  - Multi-channel content creation (Social Media, Articles). Emphasizes typography and factual integrity.
+  - General document writing (articles, reports, explainers, docs, notes). Emphasizes typography and factual integrity.
 
 ## How It Works (Read Order)
 
@@ -65,7 +69,7 @@ These files define the fine-grained behavior, checklists, and technical prioriti
 
 2. **Claude Code**:
    - Copy `claude/CLAUDE.md` (or `claude_zh/CLAUDE.md`) to your project root.
-   - Reference specialized agents from the `agents/` folder in your prompt or context.
+   - Sync the `agents/` directory to the same location under `~/.claude/`.
 
 3. **Antigravity (Gemini)**:
    - Copy `gemini/GEMINI.md` (or `gemini_zh/GEMINI.md`) to your project root.

@@ -18,7 +18,7 @@ Codex 在开始工作前应按以下顺序加载指令：
 
 ## 2. 核心行为
 
-- 在整个会话中使用中文与用户交流，除非用户明确要求某个交付物使用其他语言。
+- 默认工作语言是中文；按用户使用的语言回复，用户用中文时使用中文回复。
 - 在开始非琐碎任务前，重申目标、拆解步骤并列出假设。
 - 不确定时直接说 "Uncertain"；严禁编造 API、字段、公式、数据、来源、人物或事件。
 - 优先采用最小可行变更。避免顺手重构和臆测性的抽象。
@@ -36,13 +36,15 @@ Codex 在开始工作前应按以下顺序加载指令：
 | 系统设计、架构、技术选型、数据建模、表结构设计、API 设计、按依赖排序的任务拆解 | `architect` | `agents/architect.toml` | 是，仅设计文档 |
 | 实现、Bug 修复、测试、脚本、SQL、ETL、数据处理、性能优化、量化回测 | `code_dev` | `agents/code_dev.toml` | 是 |
 | 代码审查、Bug 搜寻、风险评估、合并前检查 | `code_review` | `agents/code_review.toml` | 否，仅报告 |
-| 文章、笔记、公众号、小红书、标题、文案、润色、提纲、配图 | `writer` | `agents/writer.toml` | 是 |
+| 通用文档写作：文章、报告、解释性长文、文档、笔记、提纲、润色 | `writer` | `agents/writer.toml` | 是 |
+
+路由由各 Agent 的 `description` 字段驱动。将任务匹配给 `description` 覆盖该任务的 Agent；`agents/*.toml` 是触发关键词和角色边界的唯一事实来源。不要在本文件维护重复的关键词表。
 
 路由优先级：
 
 1. 用户明确指定 Agent。
 2. 用户明确指定工作流。
-3. 根据下方触发关键词匹配。
+3. 根据 `agents/*.toml` 的 `description` 自动匹配。
 4. 意图仍不清楚时询问用户。
 
 Codex agent 名称使用下划线。将 Claude 风格的连字符名称视为别名：
@@ -53,48 +55,32 @@ Codex agent 名称使用下划线。将 Claude 风格的连字符名称视为别
 | `code-dev` | `code_dev` |
 | `code-review` | `code_review` |
 
-### 触发关键词
-
-**product_manager** —— 写需求、PRD、需求文档、需求分析、需求评审、产品方案、功能规划、市场调研、竞品分析、用户故事、需求拆解 / write PRD, product requirements, requirement analysis, feature planning, scope, user stories, market research, competitive analysis
-
-**architect** —— 系统设计、架构设计、技术选型、方案设计、模块划分、接口设计、数据建模、表结构设计、任务拆解、WBS、依赖分析、画架构图、画时序图 / system design, architecture, tech selection, data modeling, schema design, API design, task breakdown, dependency analysis, sequence diagram
-
-**code_dev** —— 写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测 / write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL
-
-**code_review** —— 审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患 / review code, code review, audit, find bugs, check for issues, before merge
-
-**writer** —— 写文章、写笔记、写公众号、写小红书、起标题、改文案、润色、列提纲、做内容、写一篇、起钩子、改稿、配图、封面 / write article, draft content, draft a post, polish copy, headline, outline
-
 ## 4. 多 Agent 模式
 
-即使 Codex 只有一个执行上下文，当任务需要多个角色时，也应按角色分阶段工作。阶段标题固定为：
+当运行时暴露 subagent / multi-agent 工具时，Codex agents 是真实隔离的子 Agent。不要通过在同一个回复里交错 `[Agent: x]` 标签来模拟协作。主上下文负责调度：选择 Agent，派发聚焦任务，收集交付物，并决定下一步交接。
 
-```markdown
-## [Agent: product_manager]
-## [Agent: architect]
-## [Agent: code_dev]
-## [Agent: code_review]
-## [Agent: writer]
-```
+简单的单角色任务使用主上下文中的一个主导 Agent 即可。需要独立角色、独立审查、并行探索或分离写入范围时，使用真实子 Agent。如果当前 Codex 运行环境缺少子 Agent 工具，必须明确说明该限制，并仅将角色分阶段标题作为显式 fallback。
 
-仅当用户明确要求 "multi-agent"、"parallel agents" 或 "sub-agent" 时，才启动真实子 Agent。否则，在同一个 Codex 上下文中通过阶段切换角色。
+子 Agent 交接通过产物完成，而不是依赖隐藏的共享对话状态。优先使用文件路径传递上游输出：`docs/prd.md` -> `docs/system_design.md` -> 实现改动 -> 审查报告。每个子 Agent 都必须收到足够上下文，能够自洽完成自己的任务。
 
 常见工作流：
 
-| 场景 | 顺序 |
+| 场景 | 流水线（可用时每一阶段都是一个隔离子 Agent） |
 |---|---|
-| 完整系统开发 | `product_manager` -> `architect` -> `code_dev` -> `code_review` |
-| 小功能或脚本 | `architect` 轻量设计（可选）-> `code_dev` -> `code_review` |
+| 完整系统开发 | `product_manager`（PRD）-> `architect`（设计 + 任务）-> `code_dev`（实现）-> `code_review`（独立审查） |
+| 小功能或脚本 | `architect`（可选轻量设计）-> `code_dev` -> `code_review` |
 | 实现后审查 | `code_dev` -> `code_review` |
-| 数据驱动内容创作 | `code_dev` -> `writer` |
-| 写作过程中需要计算 | `writer` -> `code_dev` -> `writer` |
+| 数据驱动内容创作 | `code_dev`（数据 / 图表）-> `writer`（文章或报告） |
+| 写作过程中需要计算 | 主上下文派发 `code_dev` 完成计算，再把结果作为输入派发给 `writer` |
 
 子 Agent 边界：
 
-- 一个子 Agent 负责一个独立任务。
+- 一个子 Agent 负责一个聚焦任务。
 - 并行任务必须有明确的文件范围，避免互相覆盖。
-- 不要把当前关键路径上的阻塞任务外包出去。
-- 总结时注明每个结论来自哪个 Agent。
+- 当前阶段依赖上一阶段输出时，按顺序派发。
+- 只有子任务真正独立时才并行派发。
+- 如果主上下文下一步必须立刻依赖某项结果，不要把这个当前阻塞任务外包出去。
+- 总结时注明每个结论或产物来自哪个子 Agent。
 
 ## 5. 角色边界
 
@@ -140,11 +126,11 @@ Codex agent 名称使用下划线。将 Claude 风格的连字符名称视为别
 
 ### 5.5 writer
 
-进入 `writer` 阶段时：
+通用文档写作 Agent：文章、报告、解释性长文、教程、文档、README 和笔记。进入 `writer` 阶段时：
 
-- 先确认渠道：小红书、公众号、大号、小号、文章、笔记等。
-- 若渠道不明且会影响最终风格，询问用户。
+- 先确定唯一核心观点和目标读者；如果目标、读者或格式不清楚且会改变结果，询问用户。
 - 严禁编造数据、人物、事件、来源或引用。
+- 根据读者认知水平匹配深度和术语密度，删除填充和虚假的确定性表达。
 - 中文输出必须遵循中文排版规则：中英文之间加空格、使用全角标点和合适的引号。
 - 避免模板化开头、空洞总结、翻译腔、过度使用的过渡词和虚假金句。
 - 尽量验证专业事实；无法验证时明确标注。
@@ -210,4 +196,4 @@ uv run ruff check src/ --fix
 - 如何进行验证。
 - 未验证或残留风险。
 
-保持简洁。不要混合多个 Agent 的结论；涉及多个角色时使用阶段标题区分。
+保持简洁。不要在没有归属说明的情况下混合多个 Agent 的结论；多个 Agent 参与时，标明对应子 Agent 或产物。

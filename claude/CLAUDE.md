@@ -47,39 +47,29 @@ When a task arrives, answer two questions: **What type? Which agent?**
 | `architect` | System design, tech selection, data modeling, dependency-ordered task breakdown | Yes (design docs only) |
 | `code-dev` | Code implementation, debugging, performance optimization, data processing | Yes |
 | `code-review` | Code review, bug hunting, risk assessment | No (report only) |
-| `writer` | Content writing (articles, notes, social media, educational) | Yes |
+| `writer` | General document writing (articles, reports, explainers, docs, notes) | Yes |
 
-### 2.2 Routing Rules
+### 2.2 Routing
 
-| Task Keywords | Agent |
-|---|---|
-| 写需求、PRD、需求分析、产品方案、功能规划、市场调研、竞品分析、用户故事 | `product-manager` |
-| 系统设计、架构、技术选型、数据建模、表结构、接口设计、任务拆解、WBS、画架构图/时序图 | `architect` |
-| 写代码、改代码、debug、测试、脚本、SQL、ETL、数据库 | `code-dev` |
-| 审代码、code review、找 bug、检查、风险评估 | `code-review` |
-| 写文章、笔记、标题、文案、润色、提纲、配图 | `writer` |
+Dispatch is driven by each agent's `description` field — match the task to the agent whose description covers it. The agent descriptions are the single source of truth for keyword matching; this file deliberately keeps no duplicate keyword table to avoid drift.
 
-Priority: explicit user designation > automatic keyword matching > this table as fallback.
+Priority: explicit user designation > automatic matching against agent descriptions.
 
 ### 2.3 Multi-Agent Collaboration
 
-Output in phases, labeling agent identity at each stage:
+Subagents run in **isolated contexts** — each is dispatched via the Task tool, does one focused job, and returns only its deliverable to the main thread. The main thread orchestrates the pipeline: it picks the next agent, hands over the upstream artifact (e.g. `docs/prd.md` → `docs/system_design.md`), and summarizes results. Do not simulate agents by interleaving `[Agent: x]` labels inside a single response; run them as real, separate subagent calls.
 
-```
-## [Agent: product-manager] ...
-## [Agent: architect] ...
-## [Agent: code-dev] ...
-## [Agent: code-review] ...
-## [Agent: writer] ...
-```
+Hand-off between stages goes through **files**, not shared conversation state — an agent reads its input from the path the upstream agent wrote, so each isolated context stays self-sufficient.
 
-| Scenario | Workflow |
+| Scenario | Pipeline (each stage = one isolated subagent) |
 |---|---|
 | Full system build | `product-manager` (PRD) → `architect` (design + tasks) → `code-dev` (implement) → `code-review` (review) |
 | Small feature / script | `architect` (lightweight design, optional) → `code-dev` → `code-review` |
 | Code then review | `code-dev` (implement) → `code-review` (independent review) |
 | Research → content | `code-dev` (data / charts) → `writer` (article) |
-| Writing needs computation | `writer` leads → temporarily switch to `code-dev` → switch back |
+| Writing needs computation | main thread runs `code-dev` for the computation, then dispatches `writer` with those results as input |
+
+Run stages sequentially when each depends on the previous one's output; dispatch in parallel only when the subtasks are genuinely independent.
 
 ### 2.4 When Uncertain
 
@@ -96,8 +86,8 @@ If the task is ambiguous or spans multiple agents, **ask the user first**. Don't
 
 ### 3.1 Language
 
-- Communicate in Chinese
-- Code, variable names, function names, log messages, config keys: use English (for grep-ability)
+- Default working language is English. Respond to the user in whatever language they use — when the user writes in Chinese, reply in Chinese.
+- Code, variable names, function names, log messages, config keys: always English (for grep-ability)
 
 ### 3.2 Change Boundaries
 
@@ -115,7 +105,7 @@ If the task is ambiguous or spans multiple agents, **ask the user first**. Don't
 
 ### 3.4 Plan Mode
 
-- Enter plan mode for any non-trivial task (3+ steps or architectural decisions)
+- Enter plan mode for non-trivial tasks (architectural decisions or multi-file changes); lightweight or single-step tasks are exempt
 - If blocked mid-way, stop and re-plan — don't push through
 - Use plan mode for verification steps too, not just construction
 - Write detailed specs upfront to reduce ambiguity
@@ -138,9 +128,8 @@ If the task is ambiguous or spans multiple agents, **ask the user first**. Don't
 
 ## 5. Self-Improvement
 
-- After any user correction, record the pattern and write rules to prevent the same mistake
-- Iterate ruthlessly until error rate drops
-- Review relevant lessons at the start of each new session
+- After a user correction, adjust behavior immediately and don't repeat the same mistake within the session
+- Persistent lesson-logging across sessions (where to record patterns, when to review them) is configured per-project in that project's AI-instruction files, not here
 
 ---
 

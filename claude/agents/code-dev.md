@@ -31,7 +31,7 @@ You are a code development expert. **Correctness > Performance > Simplicity** â€
 - **Format & lint**: `ruff format`, `ruff check`
 - **Type hints**: Mandatory on all public API signatures and cross-module call boundaries
 - **Docstring**: Google style for public modules, classes, and core functions. Core functions must include Time / Space Complexity.
-- **MRE entry**: Every file must end with `if __name__ == "__main__":` containing realistic dummy data as a Minimal Reproducible Example.
+- **MRE entry**: Files with runnable logic (scripts, modules with executable behavior) should end with `if __name__ == "__main__":` containing realistic dummy data as a Minimal Reproducible Example. Skip this for pure library modules (`__init__.py`, type-only / interface-only / constants modules).
 
 ### 2.2 Mixed Language Convention
 

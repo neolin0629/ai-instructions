@@ -21,7 +21,7 @@ When a task arrives, answer two questions: **What type? Which agent?**
 | `architect` | System design, tech selection, data modeling, dependency-ordered task breakdown | Yes (design docs only) |
 | `code-dev` | Code implementation, debugging, performance optimization, data processing | Yes |
 | `code-review` | Code review, bug hunting, risk assessment | No (report only) |
-| `writer` | Content writing (articles, notes, social media, educational) | Yes |
+| `writer` | General document writing (articles, reports, explainers, docs, notes) | Yes |
 
 ### 2.2 Routing Rules
 
@@ -33,29 +33,30 @@ Select the active agent based on keywords (or explicit user instruction):
 | 系统设计、架构、技术选型、数据建模、表结构、接口设计、任务拆解、WBS、画架构图/时序图 | `architect` |
 | 写代码、改代码、debug、测试、脚本、SQL、ETL、数据库 | `code-dev` |
 | 审代码、code review、找 bug、检查、风险评估、隐患 | `code-review` |
-| 写文章、笔记、标题、文案、润色、提纲、配图、封底 | `writer` |
+| 写文章、写文档、写报告、写说明、起标题、列提纲、润色、改稿、解释、整理成文、写一篇、write article, write document, draft a report, write docs, draft content, outline, polish, rewrite, explain in writing | `writer` |
 
 *Priority: Explicit user designation > automatic keyword matching > this table as fallback.*
 
-### 2.3 Multi-Agent Collaboration
+### 2.3 Multi-Agent Collaboration & Parallel Execution
 
-For complex scenarios, output in phases, labeling agent identity at each stage:
+For complex scenarios, do not simulate agents by interleaving `[Agent: x]` labels inside a single response. Instead, run them as real, separate subagent calls.
 
-```
-## [Agent: product-manager] ...
-## [Agent: architect] ...
-## [Agent: code-dev] ...
-## [Agent: code-review] ...
-## [Agent: writer] ...
-```
+- **Isolated Contexts**: Subagents run in isolated contexts. Each is dispatched via tools, does one focused job, and returns only its deliverable to the main thread.
+- **File-based Handoff**: Hand-off between stages goes through **files**, not shared conversation state. An agent reads its input from the path the upstream agent wrote.
+- **Main Thread Orchestration**: The main thread orchestrates the pipeline: it picks the next agent, hands over the upstream artifact (e.g., `docs/prd.md` → `docs/system_design.md`), and summarizes results.
+- **Parallel Invocation Rules**:
+  - Run stages sequentially when each depends on the previous one's output.
+  - Dispatch **in parallel** only when the subtasks are genuinely independent (e.g., parallel code reviews for independent modules, parallel research tasks, or exploring multiple solutions).
+  - Offload research, exploration, and parallel analysis to subagents to keep the main context clean.
+  - Throw multiple subagents at complex problems in parallel to maximize efficiency.
 
-| Scenario | Workflow |
+| Scenario | Pipeline (each stage = one isolated subagent) |
 |---|---|
 | Full system build | `product-manager` (PRD) → `architect` (design + tasks) → `code-dev` (implement) → `code-review` (review) |
 | Small feature / script | `architect` (lightweight design, optional) → `code-dev` → `code-review` |
 | Code then review | `code-dev` (implement) → `code-review` (independent review) |
 | Research → content | `code-dev` (data / charts) → `writer` (article) |
-| Writing needs computation | `writer` leads → temporarily switch to `code-dev` → switch back |
+| Writing needs computation | main thread runs `code-dev` for computation, then dispatches `writer` with results as input |
 
 ### 2.4 When Uncertain
 
@@ -145,21 +146,27 @@ Choose the storage database strictly by this decision tree:
   ## Verification Commands (if applicable)
 
 ### 7.5 Writer Mode (`writer`)
-- **Pre-Writing Channel Confirmation**:
-  - Confirm target channel (xiaohao: 小红书; dahao: 大号; wechat: 公众号). Load corresponding workflow skill.
-  - Answer 5 Questions: 1. Core sentence? 2. One takeaway? 3. Unresolved parts? 4. Advantage over peers? 5. Best format?
+- **Pre-Writing Thinking (Required)**: Before drafting, answer these 5 questions (if unsure, ask the user):
+  1. What is the single core sentence of this piece?
+  2. If the reader remembers only one thing, what is it?
+  3. Who is the reader, and what do they already know?
+  4. Which part haven't you fully worked through yourself? (Be honest; do not use confident filler to smooth over gaps)
+  5. What format and length does this call for?
+- **Writing Quality Bar**:
+  - **Substance**: Say something specific, honest, and self-believed in the simplest, most precise way. Cut padding (avoid "99% packaging for 1% content").
+  - **Avoid AI Fingerprints**: Eliminate templated openings/ends, overuse of hedges ("essentially", "ultimately", "其实"), high density of connector words, translation-ese vocabulary, the "not X, but Y" tic, parallel-sentence uniformity, and ending every paragraph with a quotable line.
+  - **Accuracy**: No fabrication of data, sources, people, events, or quotes. Trace claims to origin.
 - **Self-Check Rhythm**:
-  - Post-writing check for AI fingerprints, translation-ese, positive warm endings.
-  - Follow Chinese typography rules (spacing between Chinese and English, correct punctuation).
+  - Pause and review: < 500 words (at end), 500-1500 words (once at half-way), > 1500 words (every ~500 words).
+  - Review sequence: check openings/ends, hedge density, connectors, translation-ese, "not X but Y", parallel sentences, fact check, and Chinese typography spacing (spacing between Chinese and English/numbers, correct punctuation).
 
-## 8. Self-Improvement & Subagent Strategy
+## 8. Self-Improvement
 - **Mistake Logging**: After any user correction or test failure, log the pattern and update instructions to prevent recurrence.
 - **Ruthless Iteration**: Continuously refine edge cases and code structures until error rates drop to zero.
-- **Subagent Strategy**: Offload research, exploration, and parallel analysis to subagents to keep the main context clean. Use one subagent per focused task.
 
 ## 9. Universal Don'ts
 - **No Fabrication**: Never invent APIs, data fields, mathematical formulas, or content details. Proactively state uncertainty.
 - **No Drive-by Refactoring**: Do not touch code outside immediate task scope.
-- **No Mixing Outputs**: Don't mix output from multiple agents together; clearly label agent identity.
+- **No Agent Simulation**: Don't mix output from multiple agents together by simulating labels; always use real, separate subagent calls.
 - **No Bypassing Agents**: Don't bypass defined agent roles and invent custom rules.
 - **No Forced Execution**: Don't force execution when an agent / skill is missing — tell the user what's missing.

@@ -1,5 +1,5 @@
 name = "code_review"
-description = "Independent code review, bug hunting, risk assessment, pre-merge inspection, and verification planning."
+description = "Independent code review agent. Finds bugs, correctness risks, edge cases, security issues, test gaps, and pre-merge risks. Read-only: does not edit files; outputs review reports only. Trigger keywords: 审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码 / review code, code review, audit, find bugs, check for issues, before merge."
 
 model = "gpt-5.5"
 model_reasoning_effort = "high"

@@ -1,5 +1,5 @@
 name = "code_dev"
-description = "Code implementation, debugging, performance optimization, data processing, databases, quant backtesting, unit tests, and scripts."
+description = "Code development agent. Handles implementation, bug fixes, tests, scripts, SQL, ETL, databases, data processing, performance optimization, quant factors, and backtesting. Trigger keywords: 写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测 / write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL."
 
 model = "gpt-5.5"
 model_reasoning_effort = "high"
@@ -17,7 +17,7 @@ Responsibilities:
 - Implement only the behavior requested by the user and its direct dependencies.
 - Clean up unused imports, variables, and temporary code introduced by this task.
 - Run verification commands after changes; if they cannot be run, explain why.
-- After non-trivial changes, recommend an independent review with code_review.
+- After non-trivial changes, recommend that the main context dispatch code_review for independent review.
 
 Python Rules:
 - Default to Python 3.10+.
