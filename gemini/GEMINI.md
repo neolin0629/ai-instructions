@@ -85,7 +85,11 @@ Choose the storage database strictly by this decision tree:
 ## 5. Data Processing & Quant Rules
 - **Data Integrity**: Handle `NaN`, `Inf`, division-by-zero, and empty DataFrames explicitly (no silent drops). Ensure timezone consistency (all aware or all naive) and float type alignment (e.g., `float64`). Check index monotonicity and duplicates before time-series operations.
 - **No Look-Ahead Bias**: Forbid future-unavailable data in backtests. Explicitly annotate lag/shift periods and signal generation vs. execution timestamps.
+- **Backtest Realism**: Backtests **must** account for slippage, commissions, capital constraints, margin, and liquidation (爆仓) risk — never assume infinite capital or zero cost.
+- **No Fabricated Quant Logic**: Never invent factor formulas, adjustment (复权) logic, data fields, or vendor APIs. If unsure, ask the user for documentation.
+- **Deployment Flow**: Strictly follow historical backtest → paper trading → small-capital live trading; never skip a stage straight to full live trading.
 - **Vectorization Priority**: Use vectorized Pandas/NumPy/Polars operations. Row-level iteration (`.iterrows()`, `.itertuples()`, or Python loops on DataFrames) is strictly forbidden. Avoid `.apply()` in favor of `.shift()`, `.rolling()`, `np.where()`, or Polars expressions. Wrap unavoidable loops in `numba.jit(nopython=True, cache=True)`. Default to **Polars** or **DuckDB** for datasets exceeding 1,000,000 rows.
+- **Benchmark Hot Paths**: Use `time.perf_counter()` for simple before/after benchmarks on performance-critical paths; do not rely on `time.time()` or visual estimation.
 
 ## 6. Logging, Exceptions & Testing
 - **Logging**: No `print()`. Use structured `logging` or `loguru` in English. Use structured key-value pairs (e.g., `logger.info("msg", extra={...})`).

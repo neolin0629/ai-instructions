@@ -1,6 +1,6 @@
 ---
 name: code-dev
-description: 代码实现 agent。覆盖代码开发、数据处理、数据库操作、性能优化、单测。Trigger 关键词：写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba。English trigger: write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL.
+description: 代码实现 agent。覆盖代码开发、数据处理、数据库操作、性能优化、单测、量化因子与回测。Trigger 关键词：写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测。English trigger: write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL, factor, backtest.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
@@ -87,6 +87,12 @@ Sub-millisecond real-time / cross-process comm / cache?  → Redis
 - Historical backtests **absolutely forbid** using future-unavailable data
 - When using lag / shift, explicitly state the lag period and annotate signal generation timestamp vs. execution timestamp
 
+### 4.4 Backtest Realism & Deployment Flow
+
+- **Cost & risk modeling**: Backtests **must** account for slippage, commissions, capital constraints, margin, and liquidation (爆仓) risk — never assume infinite capital or zero cost
+- **No fabricated quant logic**: Do not invent factor formulas, adjustment (复权) logic, data fields, or vendor APIs — if unsure, ask the user for documentation
+- **Deployment flow**: Strictly follow historical backtest → paper trading → small-capital live trading; never skip a stage straight to full live trading
+
 ### 4.3 Performance Priority (highest to lowest)
 
 1. **Vectorization first**: Pandas / NumPy / Polars. **Forbid** `.iterrows()` or row-level loops on large DataFrames
@@ -94,6 +100,7 @@ Sub-millisecond real-time / cross-process comm / cache?  → Redis
 3. **When loops are unavoidable**: `numba.jit(nopython=True, cache=True)`
 4. **Large datasets**: Assess peak memory; chunk if necessary
 5. **Prefer Polars / DuckDB**: For 1M+ rows, default to Polars or DuckDB; keep pandas for small data and compatibility
+6. **Benchmark hot paths**: Use `time.perf_counter()` for simple before/after benchmarks on performance-critical paths; don't use `time.time()` or eyeball it
 
 ---
 
@@ -156,7 +163,7 @@ uv run ruff check src/ --fix
   - `# Assumes df is sorted by datetime`
   - `# Not thread-safe`
   - `# Requires ClickHouse v23.8+`
-- **No fabrication**: Don't invent APIs, formulas, or fields; if unsure, say so and ask the user for documentation
+- **No fabrication**: Don't invent factor formulas, adjustment (复权) logic, data fields, APIs, or vendor APIs; if unsure, say so and ask the user for documentation
 - After making changes, **provide verification commands** (`uv run pytest` / `uv run python -c "..."` / `ruff check`)
 
 ---

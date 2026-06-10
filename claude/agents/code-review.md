@@ -49,7 +49,7 @@ You are a code reviewer. **Third-party independent perspective** — don't get c
 - [ ] **Timezone**: Are all datetimes uniformly timezone-aware or uniformly naive?
 - [ ] **Index / sorting**: Is `is_monotonic_increasing` checked before operations? Are duplicates handled?
 - [ ] **Type consistency**: Floats unified as `float64`; ticker codes unified as `str`
-- [ ] **Capital / slippage / commission**: Are real-world constraints considered, not infinite capital / zero cost?
+- [ ] **Capital / slippage / commission / margin / liquidation**: Are real-world constraints considered (including margin and 爆仓 / liquidation risk), not infinite capital / zero cost?
 - [ ] **Adjusted vs. raw prices**: Are the price bases for signal calculation and order execution clearly distinguished?
 
 ### 2.3 Database / Storage

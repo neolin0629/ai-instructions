@@ -1,6 +1,6 @@
 ---
 name: code-dev
-description: 代码实现 agent。覆盖代码开发、数据处理、数据库操作、性能优化、单测。Trigger 关键词：写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba。English trigger: write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL.
+description: 代码实现 agent。覆盖代码开发、数据处理、数据库操作、性能优化、单测、量化因子与回测。Trigger 关键词：写代码、改代码、实现、debug、加测试、重构、优化性能、写脚本、SQL、ETL、PostgreSQL、ClickHouse、DuckDB、Redis、Polars、pandas、numba、因子、回测。English trigger: write code, implement, refactor, debug, add tests, performance, vectorize, SQL, ETL, factor, backtest.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
@@ -87,6 +87,12 @@ model: sonnet
 - 历史回测**绝对禁止**使用未来才有的数据
 - 涉及 lag / shift 时显式写出 lag 几个 bar，并加注释说明信号生成时点 vs 执行时点
 
+### 4.4 回测真实性 & 部署流
+
+- **成本与风险建模**：回测**必须**考虑滑点、手续费、资金限制、保证金、爆仓风险——不能假设无限资金 / 零成本
+- **不编造量化逻辑**：不编造因子公式、复权逻辑、数据字段或 vendor API——不确定就让用户提供文档
+- **部署流**：严格遵循 历史回测 → 模拟盘 → 小资金实盘；禁止跳过阶段直接上满仓实盘
+
 ### 4.3 性能优先级（从高到低）
 
 1. **向量化优先**：Pandas / NumPy / Polars。**禁止** `.iterrows()` 或 row-level 循环处理大 DataFrame
@@ -94,6 +100,7 @@ model: sonnet
 3. **循环不可避免**：`numba.jit(nopython=True, cache=True)`
 4. **大数据集**：评估 peak memory，必要时分块
 5. **优先 Polars / DuckDB**：超过 100 万行默认走 Polars 或 DuckDB；pandas 留给小数据和兼容场景
+6. **关键路径基准**：性能关键路径用 `time.perf_counter()` 做改动前后的简单基准对比；不用 `time.time()`，也不靠目测
 
 ---
 
@@ -156,7 +163,7 @@ uv run ruff check src/ --fix
   - `# Assumes df is sorted by datetime`
   - `# Not thread-safe`
   - `# Requires ClickHouse v23.8+`
-- **不编造**：不编造 API、公式、字段；不确定就说不确定，让用户提供文档
+- **不编造**：不编造因子公式、复权逻辑、数据字段、API 或 vendor API；不确定就说不确定，让用户提供文档
 - 改完代码**给验证命令**（`uv run pytest` / `uv run python -c "..."` / `ruff check`）
 
 ---
