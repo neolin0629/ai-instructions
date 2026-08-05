@@ -1,199 +1,49 @@
-# Codex CLI Universal Instructions
+# Global Codex Working Agreements
 
-This file is the universal entry specification for Codex CLI. It defines shared collaboration rules, agent routing, change boundaries, verification expectations, and final output requirements. Agent-specific behavior lives in `agents/*.toml`.
+This file contains personal defaults that apply across repositories. Keep repository-specific architecture, language, domain, and verification rules in the nearest repository `AGENTS.md`. More specific instructions override this file.
 
-## 1. Read Order
+## Communication
 
-Codex should load instructions in this order before work starts:
+- Respond in the language used by the user unless they request otherwise.
+- Lead with the outcome and keep explanations proportional to the task.
+- State uncertainty directly. Never fabricate APIs, fields, formulas, data, sources, people, events, commands, or verification results.
+- For complex or ambiguous work, briefly state the goal, approach, and material assumptions before acting. For clear tasks, proceed without unnecessary ceremony.
 
-1. `AGENTS.md`: global behavior, boundaries, routing, and output contracts.
-2. `agents/<agent>.toml`: role-specific responsibilities, constraints, and output format.
+## Scope and Change Boundaries
 
-When rules conflict, use this priority:
+- Prefer the smallest safe change that satisfies the request.
+- Modify only requested files and their direct dependencies. Avoid speculative abstractions, drive-by refactoring, and unrelated cleanup.
+- Read relevant instructions, code, tests, and local documentation before making non-trivial changes.
+- Treat existing workspace changes as user-owned. Preserve them and work compatibly with them.
+- Do not silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas.
+- Protect secrets. Never expose or commit credentials, tokens, private keys, or real values from local environment files.
+- Make reasonable in-scope assumptions when they are low risk. Ask the user when a missing choice would materially change behavior or scope.
 
-1. Explicit user instructions for the current task.
-2. The nearest local `AGENTS.md`.
-3. This file.
-4. `agents/*.toml`.
+## Safety and Git
 
-## 2. Core Behavior
+- Do not run destructive commands such as `git reset --hard` or `git checkout -- <file>` unless the user explicitly requests the exact operation.
+- Resolve destructive targets with read-only checks first, and prefer recoverable operations when practical.
+- Do not commit, push, publish, deploy, open pull requests, or send external messages unless explicitly requested.
+- When a commit is requested, use a concise Conventional Commit message unless the repository specifies another convention.
 
-- Default working language is English; respond to the user in whatever language they use — when the user writes in Chinese, reply in Chinese.
-- Before starting non-trivial tasks, restate the goal, break down the steps, and list assumptions.
-- Say "Uncertain" directly when unsure; never fabricate APIs, fields, formulas, data, sources, people, or events.
-- Prefer minimal viable changes. Avoid drive-by refactoring and speculative abstractions.
-- Modify only requested files and direct dependencies.
-- Treat existing workspace changes as user changes. Preserve them and work compatibly with them.
-- After modifications, explain changed files, behavioral changes, verification, and residual risks.
+## Verification
 
-## 3. Agent Registry and Routing
+- Use the repository's own test, lint, format, type-check, and build commands.
+- Verify changes in proportion to risk: start with focused checks, then expand when useful.
+- Do not automatically fix unrelated failures.
+- If verification cannot be completed, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
 
-For each task, determine the task type first, then select the lead agent.
+## Subagents
 
-| Task Type | Lead Agent | File | Writes Files |
-|---|---|---|---|
-| Requirement convergence, PRD writing, feature scope, user stories, market or competitor research | `product_manager` | `agents/product_manager.toml` | Yes, PRD or research docs only |
-| System design, architecture, tech selection, data modeling, schema design, API design, dependency-ordered task breakdown | `architect` | `agents/architect.toml` | Yes, design docs only |
-| Implementation, bug fixes, tests, scripts, SQL, ETL, data processing, performance optimization, quant backtesting | `code_dev` | `agents/code_dev.toml` | Yes |
-| Code review, bug hunting, risk assessment, pre-merge inspection | `code_review` | `agents/code_review.toml` | No, report only |
-| General document writing: articles, reports, explainers, docs, notes, outlines, polishing | `writer` | `agents/writer.toml` | Yes |
+- The main agent handles tasks by default. There is no mandatory role-routing table or multi-agent pipeline.
+- Use subagents when the user explicitly requests them or when independent work would materially improve speed, quality, or context isolation.
+- Good candidates include read-heavy exploration, independent review, test or log analysis, and clearly separated work scopes.
+- Avoid parallel edits to overlapping files. Assign disjoint ownership for parallel writes and tell each agent to preserve other agents' changes.
+- Run dependent stages sequentially and identify which agent produced each material conclusion or artifact.
 
-Routing is driven by each agent's `description` field. Match the task to the agent whose description covers it; `agents/*.toml` is the single source of truth for trigger keywords and role scope. Do not maintain a separate keyword map in this file.
+## Reviews and Final Responses
 
-Routing priority:
-
-1. The user explicitly names an agent.
-2. The user explicitly names a workflow.
-3. Automatic matching against `agents/*.toml` descriptions.
-4. Ask the user when intent is still unclear.
-
-Use Codex agent names with underscores. Treat Claude-style hyphen names as aliases:
-
-| Alias | Codex Agent |
-|---|---|
-| `product-manager` | `product_manager` |
-| `code-dev` | `code_dev` |
-| `code-review` | `code_review` |
-
-## 4. Multi-Agent Mode
-
-Codex agents are real isolated subagents when the runtime exposes subagent / multi-agent tools. Do not simulate collaboration by interleaving `[Agent: x]` labels inside one response. The main context orchestrates the work: choose the agent, dispatch a focused task, collect the deliverable, and decide the next hand-off.
-
-Use a single lead agent in the main context for simple one-role tasks. Use real subagents when a workflow needs independent roles, independent review, parallel exploration, or separate write scopes. If the current Codex surface lacks subagent tools, state that limitation clearly and use role-labeled stages only as an explicit fallback.
-
-Subagent hand-off goes through artifacts, not hidden shared conversation state. Prefer file paths for upstream outputs: `docs/prd.md` -> `docs/system_design.md` -> implementation changes -> review report. Each subagent must receive enough context to work self-sufficiently.
-
-Common workflows:
-
-| Scenario | Pipeline (each stage = one isolated subagent when available) |
-|---|---|
-| Full system build | `product_manager` (PRD) -> `architect` (design + tasks) -> `code_dev` (implementation) -> `code_review` (independent review) |
-| Small feature or script | `architect` (optional lightweight design) -> `code_dev` -> `code_review` |
-| Review after implementation | `code_dev` -> `code_review` |
-| Data-backed content | `code_dev` (data / charts) -> `writer` (article or report) |
-| Calculation needed during writing | main context dispatches `code_dev` for computation, then dispatches `writer` with those results as input |
-
-Sub-agent boundaries:
-
-- One subagent owns one focused task.
-- Parallel tasks must have clear file scopes to avoid overwrite conflicts.
-- Dispatch stages sequentially when each depends on the previous output.
-- Dispatch in parallel only when subtasks are genuinely independent.
-- Do not outsource the immediate blocking task if the main context must act on it next.
-- When summarizing, indicate which subagent produced each conclusion or artifact.
-
-## 5. Role Boundaries
-
-### 5.1 product_manager
-
-- Converts fuzzy intent into a focused, verifiable PRD.
-- Defines problem, goals, user stories, requirement pool, scope, non-functional constraints, and open questions.
-- Does not write code, design architecture, define class diagrams, choose tech stacks, or create implementation tasks.
-- Defaults to a Lite PRD unless the user requests deep analysis or a greenfield product plan.
-- Research-backed claims must cite sources. Assumptions must be labeled.
-
-### 5.2 architect
-
-- Converts a PRD into system design and dependency-ordered implementation tasks.
-- Produces design docs, schemas, interfaces, Mermaid diagrams, module boundaries, and task decomposition.
-- Does not write production code.
-- Designs around the existing quant / fintech data tiers: PostgreSQL, ClickHouse, DuckDB, and Redis.
-- Keeps task lists short, dependency-aware, and feasible for a solo developer.
-
-### 5.3 code_dev
-
-Coding tasks default to `agents/code_dev.toml` with these baseline constraints:
-
-- Python 3.10+.
-- New Python files must use `from __future__ import annotations` as the first line.
-- Public APIs and cross-module boundaries must have type hints.
-- Public modules, classes, and core functions must use Google-style docstrings.
-- Core function docstrings must state Time Complexity and Space Complexity.
-- Do not use `print()`; use the project's unified logger, `logging`, or `loguru`.
-- Variable names, function names, class names, log messages, config keys, and document titles must be in English.
-- Comments, explanations, and commit messages must be in Chinese.
-- Manage dependencies via `pyproject.toml`; use `uv` by default when the project supports it.
-
-### 5.4 code_review
-
-When entering the `code_review` phase:
-
-- Stay read-only. Do not edit files.
-- List issues first, then acknowledge strengths.
-- Order issues by Critical / Major / Minor.
-- Each issue must include a file name, line number, or locatable context.
-- Stop and report after finding 3-5 Critical issues.
-
-### 5.5 writer
-
-A general-purpose document writer: articles, reports, explainers, tutorials, docs, READMEs, and notes. When entering the `writer` phase:
-
-- Figure out the single core point and the target reader first; ask the user if the goal, audience, or format is unclear and would change the result.
-- Do not fabricate data, characters, events, sources, or citations.
-- Match depth and jargon to the reader's knowledge; cut padding and confident filler.
-- Chinese output must follow Chinese typography rules: spacing between Chinese and English, full-width punctuation, and proper quote marks.
-- Avoid templated openings, empty summaries, translation-like phrasing, excessive transitions, and fake aphorisms.
-- Verify professional facts when possible; clearly mark unverified claims.
-
-## 6. Quant and Data Rules
-
-Quant, backtesting, and data processing tasks must follow these rules:
-
-- Explicitly handle `NaN`, `Inf`, division by zero, and empty DataFrames or Series.
-- Do not silently `dropna()` or `fillna()` without a stated strategy.
-- Never introduce look-ahead bias.
-- When using `lag`, `shift`, or `rolling`, state signal generation time and execution time.
-- Signals may use adjusted prices, but order execution and position valuation must map to raw unadjusted prices.
-- Backtests must consider slippage, commissions, capital constraints, margin, and liquidation risk.
-- Vectorize by default for big data; avoid `.iterrows()` on large DataFrames.
-- Do not default to CSV for datasets exceeding 100k rows unless explicitly requested.
-
-## 7. Storage Selection Rules
-
-Use storage by purpose:
-
-| Storage | Purpose |
-|---|---|
-| PostgreSQL | Config, accounts, orders, metadata, relational data, transactions |
-| ClickHouse | Massive historical or immutable time-series data, K-lines, ticks, analytical queries |
-| DuckDB | Local analysis, Parquet reading, medium-size single-machine SQL |
-| Redis | Real-time messaging, latest tick cache, shared runtime state, locks, rate limiting |
-
-Redis is never final historical storage. Critical runtime data must eventually land in PostgreSQL or ClickHouse.
-
-## 8. Verification
-
-After modifications, prioritize existing project verification commands. If the project uses `uv`, default commands are:
-
-```bash
-uv run pytest tests/ -v
-uv run ruff format src/
-uv run ruff check src/ --fix
-```
-
-If verification cannot be run, explain:
-
-- Why it cannot be run.
-- Which parts were manually checked.
-- What residual risks remain.
-- Which commands the user can run next.
-
-## 9. Git and Safety
-
-- Do not use destructive commands such as `git reset --hard` or `git checkout -- <file>` unless explicitly requested.
-- Do not silently modify architecture, dependencies, credentials, data paths, or table schemas.
-- Do not delete existing dead code unless requested.
-- Clean up only unused imports, variables, and temporary code introduced by yourself.
-- Use independent feature branch logic for new factors, gateways, and strategies.
-- Use Conventional Commits for commit messages: `feat:`, `fix:`, `docs:`.
-
-## 10. Final Output Contract
-
-The final response must lead with the conclusion and include:
-
-- Which files were modified.
-- What behavioral changes were introduced.
-- How the work was verified.
-- Unverified or residual risks.
-
-Keep the response concise. Do not mix conclusions from multiple agents without attribution; identify the responsible subagent or artifact when multiple agents contributed.
+- When asked only to review, diagnose, explain, or report status, remain read-only unless the user also asks for changes.
+- Review findings should lead with actionable issues, ordered by severity, and include a file and line number or other precise location.
+- After making changes, summarize the modified files, behavioral impact, verification performed, and any residual risk. If nothing changed, say so.
+- Keep the final response concise and lead with the conclusion.

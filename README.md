@@ -15,42 +15,27 @@ The repository is organized by tool and language. Language-specific directories 
 
 ## Core Files & Architecture
 
-The instruction architecture follows a hierarchical design where the entry file handles both global rules and the routing of specialized sub-agents.
+The instruction architecture separates durable global agreements, portable runtime defaults, and optional specialized agents. Repository-specific rules belong in each repository rather than in the global files.
 
-### 1. `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (Universal Entry & Routing)
-This is the **global entry point** and primary rulebook. It handles:
-- **Core Behavior**: Communication language, fundamental principles (e.g., "Think before coding", "Simplicity first").
-- **Agent Routing & Registry**: Defines how the system identifies and activates specialized agents (`code_dev`, `code_review`, `writer`) based on task types and keywords.
-- **Global Baselines**: Universal coding standards (e.g., Python 3.10+), data processing rules, and Git safety protocols.
-- **Output Contract**: The expected format and verification requirements for final responses.
+### 1. `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (Global Agreements)
+These files define durable defaults such as communication, change boundaries, safety, verification, and final-response expectations. 
 
 ### 2. `config.toml` (Runtime Configuration)
-For Codex, this file is strictly for **system and performance settings**:
-- **Concurrency**: `max_threads` for parallel task execution.
-- **Depth**: `max_depth` for agent recursion limits.
-- *Note: Agent registration and keyword routing have been moved to `AGENTS.md` for better central management.*
+The Codex template contains portable defaults for the model, reasoning effort, personality, subagent concurrency, and memories. 
 
 ### 3. `agents/*.toml` or `agents/*.md` (Specialized Personas)
-These files define the fine-grained behavior, checklists, and technical priorities for specific roles.
+These files define narrow, optional roles that are loaded only when the corresponding custom agent is spawned.
 
-- **`product-manager` (Product Management)**:
-  - Requirement convergence, PRD authoring, and market/competitive research. Only writes PRD documents.
-- **`architect` (System Architecture)**:
-  - System design, technology selection, data modeling, and task breakdown. Only writes design documents.
-- **`code_dev` / `code-dev` (Code Development)**:
-  - Implementation, debugging, performance optimization, and quant backtesting.
-  - Correctness > Performance > Simplicity.
-- **`code_review` / `code-review` (Code Review)**:
-  - Independent auditing and risk assessment. Read-only; emphasizes edge cases and correctness.
-- **`writer` (Content Writing)**:
-  - General document writing (articles, reports, explainers, docs, notes). Emphasizes typography and factual integrity.
+- **`product_manager`**: Focused requirements, Lite PRDs, scope, user stories, and research briefs.
+- **`architect`**: Architecture, data models, interfaces, system flows, and implementation plans; no production code.
+- **`code_review`**: Independent, read-only review of correctness, regressions, security, test gaps, and material risks.
 
 ## How It Works (Read Order)
 
 ### Codex CLI
-1. **`AGENTS.md`**: Establishes ground rules and performs **Agent Routing**.
-2. **`config.toml`**: Applies runtime limits (threads/depth).
-3. **`agents/<agent>.toml`**: Loads the selected agent's specific instructions.
+1. **`config.toml`**: Applies portable runtime defaults.
+2. **`AGENTS.md`**: Supplies global agreements, followed by more specific repository instructions.
+3. **`agents/<agent>.toml`**: Loads only when that custom agent is explicitly spawned.
 
 ### Claude Code
 1. **`CLAUDE.md`**: Foundational rules and agent dispatch logic.
@@ -65,7 +50,8 @@ These files define the fine-grained behavior, checklists, and technical prioriti
 
 1. **Codex CLI**:
    - Copy `codex/AGENTS.md` (or `codex_zh/AGENTS.md`) to your project root or `~/.codex/`.
-   - Sync `config.toml` and the `agents/` directory to the same location.
+   - Sync the `agents/` directory to `~/.codex/agents/`.
+   - Merge the portable `config.toml` entries into `~/.codex/config.toml`; do not overwrite machine-generated plugin or MCP settings blindly.
 
 2. **Claude Code**:
    - Copy `claude/CLAUDE.md` (or `claude_zh/CLAUDE.md`) to your project root.
@@ -76,6 +62,6 @@ These files define the fine-grained behavior, checklists, and technical prioriti
 
 ## Modifying Instructions
 
-- **Global rules**: Update `AGENTS.md` (e.g., changing coding standards).
+- **Global rules**: Keep only cross-repository working agreements in `AGENTS.md`; put language, domain, architecture, and verification rules in each repository.
 - **Agent behavior**: Update the corresponding file in `agents/`.
-- **New Agents**: Add a `.toml`/`.md` file to `agents/` and register it in the routing table within `AGENTS.md`.
+- **New Agents**: Add a narrow `.toml`/`.md` file to the appropriate `agents/` directory.
