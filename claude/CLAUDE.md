@@ -1,141 +1,58 @@
-# CLAUDE — Universal AI Collaboration Baseline
+# Global Working Agreements
 
-The foundational rules for all agents and interactions. Execution details belong to each agent; this file only defines universal constraints.
+Personal cross-project defaults. Repository-specific architecture, domain, schemas, and verification commands belong in that repository's own `CLAUDE.md` / `AGENTS.md`; more specific instructions override this file.
 
----
+Facts the toolchain states for itself are not written here — `uv.lock`, `pyproject.toml`, and the existing code style *are* the facts. Read them instead of encoding a rule.
 
-## 1. Core Principles
+## Language
 
-### 1.1 Think Before Acting
+- Reply in the language the user writes in.
+- Comments, commit messages, document prose: **Chinese**.
+- Identifiers, function names, class names, log messages, config keys, table names, field names, file names: **English** (for grep-ability).
 
-- Restate the goal, list breakdowns, and flag assumptions before starting any task
-- When multiple interpretations exist, present them explicitly — don't silently pick one
-- If unsure, say "unsure" — don't fabricate
-- If a better approach exists, proactively surface it
+## Change Boundaries
 
-### 1.2 Simplicity First
+- Never silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas — say it first.
+- Never output or commit real credentials, tokens, private keys, or real values from local environment files.
 
-- Solve the problem with minimal code / text
-- Don't anticipate future needs with "flexibility" or "configurability"
-- Don't create unrequested abstractions
-- If 50 lines will do, don't write 200
+## New-Project Defaults (Python projects; existing projects follow their own repo)
 
-### 1.3 Goal-Driven + Verifiable
+- Python 3.10+, first line `from __future__ import annotations`; manage dependencies with `uv`, not pip.
+- Prefer Polars / DuckDB for data processing; keep pandas for small data and compatibility.
+- Use FastAPI when a backend service is needed.
 
-- Define checkable success criteria and loop until verified
-- Never mark a task "done" unless you can prove it is
-- To fix a bug: reproduce it first, then fix it
-- Provide verification commands after every change
+## Storage Tiers (choose by purpose, never mix)
 
-### 1.4 No Fabrication
-
-- Code: don't invent APIs, data fields, or formulas
-- Writing: don't fabricate data, sources, people, or events
-- If you can't find something, say so — don't make it "look plausible"
-
----
-
-## 2. Agent Dispatch System
-
-When a task arrives, answer two questions: **What type? Which agent?**
-
-### 2.1 Current Agents
-
-| Agent | Purpose | Writes Files |
-|---|---|---|
-| `product-manager` | Requirement convergence, PRD authoring, market/competitive research | Yes (PRD only) |
-| `architect` | System design, tech selection, data modeling, dependency-ordered task breakdown | Yes (design docs only) |
-| `code-dev` | Code implementation, debugging, performance optimization, data processing | Yes |
-| `code-review` | Code review, bug hunting, risk assessment | No (report only) |
-| `writer` | General document writing (articles, reports, explainers, docs, notes) | Yes |
-
-### 2.2 Routing
-
-Dispatch is driven by each agent's `description` field — match the task to the agent whose description covers it. The agent descriptions are the single source of truth for keyword matching; this file deliberately keeps no duplicate keyword table to avoid drift.
-
-Priority: explicit user designation > automatic matching against agent descriptions.
-
-### 2.3 Multi-Agent Collaboration
-
-Subagents run in **isolated contexts** — each is dispatched via the Task tool, does one focused job, and returns only its deliverable to the main thread. The main thread orchestrates the pipeline: it picks the next agent, hands over the upstream artifact (e.g. `docs/prd.md` → `docs/system_design.md`), and summarizes results. Do not simulate agents by interleaving `[Agent: x]` labels inside a single response; run them as real, separate subagent calls.
-
-Hand-off between stages goes through **files**, not shared conversation state — an agent reads its input from the path the upstream agent wrote, so each isolated context stays self-sufficient.
-
-| Scenario | Pipeline (each stage = one isolated subagent) |
+| Purpose | Choice |
 |---|---|
-| Full system build | `product-manager` (PRD) → `architect` (design + tasks) → `code-dev` (implement) → `code-review` (review) |
-| Small feature / script | `architect` (lightweight design, optional) → `code-dev` → `code-review` |
-| Code then review | `code-dev` (implement) → `code-review` (independent review) |
-| Research → content | `code-dev` (data / charts) → `writer` (article) |
-| Writing needs computation | main thread runs `code-dev` for the computation, then dispatches `writer` with those results as input |
+| Business system of record: config, orders, accounts, metadata; needs transactions and relations | PostgreSQL |
+| Massive historical time series: K-line, tick; append-only, read-heavy analytical queries | ClickHouse |
+| Single-machine analysis, reading Parquet, fast SQL on medium data | DuckDB |
+| Real-time layer: message dispatch, tick cache, cross-process state, distributed locks, rate limiting | Redis |
 
-Run stages sequentially when each depends on the previous one's output; dispatch in parallel only when the subtasks are genuinely independent.
+- Redis is never the system of record; critical data must land periodically in PG / CH. Neither historical nor relational data goes in Redis.
+- No CSV beyond 100k rows unless explicitly requested; use Parquet (zstd / snappy) for local caching.
 
-### 2.4 When Uncertain
+## Quant Correctness Guardrails (applies when market data, factors, backtests, or live trading are involved)
 
-If the task is ambiguous or spans multiple agents, **ask the user first**. Don't default to action — picking the wrong agent costs more than going slow.
+- **No look-ahead bias**: a historical backtest must not use data unavailable at that point in time. When using lag / shift, state the lag period and distinguish signal-generation timestamp from execution timestamp.
+- **Adjustment and price basis**: state the adjustment method; distinguish the price used for signal computation from the price used for order execution.
+- **Timezone**: datetimes are either all timezone-aware or all naive — never mixed.
+- **Backtest realism**: must account for slippage, commissions, capital constraints, margin, and liquidation risk. Never assume infinite capital at zero cost.
+- **Deployment order**: historical backtest → paper trading → small-capital live. No skipping stages.
+- **No fabricated quant logic**: never invent factor formulas, adjustment rules, data fields, or market-vendor APIs. When unsure, ask for the documentation.
 
----
+## Subagents
 
-## 3. Universal Behavioral Constraints
+- The main thread handles work by default. There is no mandatory role-routing table.
+- Dispatch only when the user names an agent, or when independent work would materially improve speed, quality, or context isolation: read-heavy exploration, independent review, log and test analysis, cleanly separated parallel work.
+- Never edit overlapping files in parallel. Run dependent stages sequentially, and say which conclusion came from which agent.
 
-### 3.0 Python Environment
+## Deliverables
 
-- Prefer `uv` for Python environment and dependency management: `uv run`, `uv sync`, `uv add`, `uv pip`
-- Only fall back to `pip` / `python -m` when the project does not support `uv` (no `uv.lock` or `pyproject.toml` not configured for `uv`)
+- Write a file only when the user asks for an artifact or gives a path; otherwise return the result in chat.
+- After changes, give copy-pasteable verification commands using the repository's own commands. When verification isn't possible, say why, what was checked manually, and what risk remains.
 
-### 3.1 Language
+## Bootstrap
 
-- Default working language is English. Respond to the user in whatever language they use — when the user writes in Chinese, reply in Chinese.
-- Code, variable names, function names, log messages, config keys: always English (for grep-ability)
-
-### 3.2 Change Boundaries
-
-- Only touch what was requested; no drive-by refactoring
-- Never silently change architecture, dependencies, credentials, data paths, or table schemas
-- Clean up unused variables / imports **you introduced**; don't delete pre-existing dead code (unless asked)
-- Match existing style, even if you'd do it differently
-
-### 3.3 Output Style
-
-- Code first: present the result, then explain
-- Conclusion first: state the verdict before the details
-- Explicitly annotate implicit assumptions and constraints
-- Don't force templates: follow the structure the problem demands
-
-### 3.4 Plan Mode
-
-- Enter plan mode for non-trivial tasks (architectural decisions or multi-file changes); lightweight or single-step tasks are exempt
-- If blocked mid-way, stop and re-plan — don't push through
-- Use plan mode for verification steps too, not just construction
-- Write detailed specs upfront to reduce ambiguity
-
-### 3.5 Verification Loop
-
-- Provide verification commands after every change
-- Diff behavior before and after your changes
-- Ask yourself: "Would a senior engineer approve this?"
-
----
-
-## 4. Subagent Strategy
-
-- Offload research, exploration, and parallel analysis to subagents to keep the main context clean
-- Throw multiple subagents at complex problems in parallel
-- One subagent, one task — focused execution
-
----
-
-## 5. Self-Improvement
-
-- After a user correction, adjust behavior immediately and don't repeat the same mistake within the session
-- Persistent lesson-logging across sessions (where to record patterns, when to review them) is configured per-project in that project's AI-instruction files, not here
-
----
-
-## 6. Don'ts
-
-- Don't bypass agents and invent your own rules
-- Don't mix output from multiple agents together
-- Don't force execution when an agent / skill is missing — tell the user what's missing
-- Don't put execution details in this file (details belong to agents / skills)
+To establish Python coding standards in a new project, take the seed from `~/.claude/templates/code-dev.md`, copy it into that project's `CLAUDE.md`, and adapt it — don't rewrite it from memory.
