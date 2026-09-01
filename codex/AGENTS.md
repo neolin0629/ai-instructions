@@ -1,49 +1,30 @@
 # Global Codex Working Agreements
 
-This file contains personal defaults that apply across repositories. Keep repository-specific architecture, language, domain, and verification rules in the nearest repository `AGENTS.md`. More specific instructions override this file.
+Personal defaults that apply across repositories. Keep repository-specific architecture, language, domain, data, and verification rules in the nearest repository `AGENTS.md`; more specific instructions override this file.
 
 ## Communication
 
-- Respond in the language used by the user unless they request otherwise.
+- Respond in the user's language unless they request otherwise.
 - Lead with the outcome and keep explanations proportional to the task.
-- State uncertainty directly. Never fabricate APIs, fields, formulas, data, sources, people, events, commands, or verification results.
-- For complex or ambiguous work, briefly state the goal, approach, and material assumptions before acting. For clear tasks, proceed without unnecessary ceremony.
+- State material uncertainty directly.
 
-## Scope and Change Boundaries
+## Scope and Authorization
 
-- Prefer the smallest safe change that satisfies the request.
-- Modify only requested files and their direct dependencies. Avoid speculative abstractions, drive-by refactoring, and unrelated cleanup.
-- Read relevant instructions, code, tests, and local documentation before making non-trivial changes.
+- Prefer the smallest safe change that satisfies the request. Modify only requested files and their direct dependencies; avoid speculative abstractions, unrelated refactoring, and drive-by cleanup.
 - Treat existing workspace changes as user-owned. Preserve them and work compatibly with them.
-- Do not silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas.
+- Do not silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas. Ask when a missing choice would materially change behavior or scope.
 - Protect secrets. Never expose or commit credentials, tokens, private keys, or real values from local environment files.
-- Make reasonable in-scope assumptions when they are low risk. Ask the user when a missing choice would materially change behavior or scope.
+- Do not commit, push, publish, deploy, open pull requests, or send external messages unless explicitly requested. When a commit is requested, use a concise Conventional Commit message unless the repository specifies otherwise.
 
-## Safety and Git
+## Verification and Delivery
 
-- Do not run destructive commands such as `git reset --hard` or `git checkout -- <file>` unless the user explicitly requests the exact operation.
-- Resolve destructive targets with read-only checks first, and prefer recoverable operations when practical.
-- Do not commit, push, publish, deploy, open pull requests, or send external messages unless explicitly requested.
-- When a commit is requested, use a concise Conventional Commit message unless the repository specifies another convention.
-
-## Verification
-
-- Use the repository's own test, lint, format, type-check, and build commands.
-- Verify changes in proportion to risk: start with focused checks, then expand when useful.
-- Do not automatically fix unrelated failures.
-- If verification cannot be completed, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
+- Use the repository's own checks and verify in proportion to risk. Do not automatically fix unrelated failures.
+- Report what verification ran and its result. If verification cannot complete, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
+- Create a standalone document only when the user requests one or provides a path. Implementation and fix requests still authorize the necessary in-scope source edits.
+- After changes, summarize modified files, behavioral impact, verification, and residual risk.
 
 ## Subagents
 
-- The main agent handles tasks by default. There is no mandatory role-routing table or multi-agent pipeline.
-- Use subagents when the user explicitly requests them or when independent work would materially improve speed, quality, or context isolation.
-- Good candidates include read-heavy exploration, independent review, test or log analysis, and clearly separated work scopes.
-- Avoid parallel edits to overlapping files. Assign disjoint ownership for parallel writes and tell each agent to preserve other agents' changes.
-- Run dependent stages sequentially and identify which agent produced each material conclusion or artifact.
-
-## Reviews and Final Responses
-
-- When asked only to review, diagnose, explain, or report status, remain read-only unless the user also asks for changes.
-- Review findings should lead with actionable issues, ordered by severity, and include a file and line number or other precise location.
-- After making changes, summarize the modified files, behavioral impact, verification performed, and any residual risk. If nothing changed, say so.
-- Keep the final response concise and lead with the conclusion.
+- The main agent handles tasks by default; there is no mandatory routing table or multi-agent pipeline.
+- Use subagents only when the user requests them or independent work would materially improve speed, quality, or context isolation.
+- Do not assign overlapping files for parallel edits. Give parallel writers disjoint ownership, run dependent stages sequentially, and identify the source of each material conclusion or artifact.

@@ -2,22 +2,23 @@
 
 Personal cross-project defaults. Repository-specific architecture, domain, schemas, and verification commands belong in that repository's own `CLAUDE.md` / `AGENTS.md`; more specific instructions override this file.
 
-Facts the toolchain states for itself are not written here — `uv.lock`, `pyproject.toml`, and the existing code style *are* the facts. Read them instead of encoding a rule.
-
 ## Language
 
 - Reply in the language the user writes in.
-- Comments, commit messages, document prose: **Chinese**.
+- Comments, commit messages, document prose: **Chinese**. Exception: a repository with an established English convention (open source, external collaboration) keeps its own.
 - Identifiers, function names, class names, log messages, config keys, table names, field names, file names: **English** (for grep-ability).
 
 ## Change Boundaries
 
-- Never silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas — say it first.
+- Never silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas — say it first; for deploy, publish, pull requests, and external messages, wait to be asked.
 - Never output or commit real credentials, tokens, private keys, or real values from local environment files.
+- Uncommitted changes in the working tree are user-owned. Preserve them — never revert, stash, or overwrite them to make your own work apply cleanly.
+- When asked only to review, diagnose, explain, or report, stay read-only unless changes were also requested.
+- When a commit is requested, write a concise Conventional Commit message unless the repository specifies another convention.
 
 ## New-Project Defaults (Python projects; existing projects follow their own repo)
 
-- Python 3.10+, first line `from __future__ import annotations`; manage dependencies with `uv`, not pip.
+- Python 3.10+, `from __future__ import annotations` as the first statement — after the module docstring when there is one; manage dependencies with `uv`, not pip.
 - Prefer Polars / DuckDB for data processing; keep pandas for small data and compatibility.
 - Use FastAPI when a backend service is needed.
 
@@ -44,14 +45,12 @@ Facts the toolchain states for itself are not written here — `uv.lock`, `pypro
 
 ## Subagents
 
-- The main thread handles work by default. There is no mandatory role-routing table.
-- Dispatch only when the user names an agent, or when independent work would materially improve speed, quality, or context isolation: read-heavy exploration, independent review, log and test analysis, cleanly separated parallel work.
 - Never edit overlapping files in parallel. Run dependent stages sequentially, and say which conclusion came from which agent.
 
 ## Deliverables
 
-- Write a file only when the user asks for an artifact or gives a path; otherwise return the result in chat.
-- After changes, give copy-pasteable verification commands using the repository's own commands. When verification isn't possible, say why, what was checked manually, and what risk remains.
+- Write a standalone document only when the user asks for one or gives a path; otherwise return the result in chat. This governs write-ups, not source: implementing or fixing code authorizes the in-scope file edits the task needs.
+- Give copy-pasteable verification commands — the repository's own — when verification couldn't run or the user needs to reproduce it. When it isn't possible at all, say why, what was checked manually, and what risk remains.
 
 ## Bootstrap
 

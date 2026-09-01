@@ -13,7 +13,7 @@ The repository is organized by tool and language. Language-specific directories 
 - `gemini/`: English instructions for Antigravity (Gemini).
 - `gemini_zh/`: Chinese instructions for Antigravity (Gemini).
 
-English is the source of truth; the `_zh` directories are translations kept in sync.
+English is the source of truth; the `_zh` directories are translations kept in sync. Language-neutral configuration files stay byte-identical, while prose-bearing files stay semantically aligned.
 
 ## What Belongs Where
 
@@ -21,9 +21,9 @@ The instruction set stays small on purpose. Every rule must earn its place again
 
 | Tier | Test | Examples |
 |---|---|---|
-| **Global** (`CLAUDE.md` / `AGENTS.md` / `GEMINI.md`) | Cross-project, not guessable, and **still true in a new project with no code to imitate** | Language conventions, storage-tier selection, domain correctness guardrails |
-| **Per repository** (that repo's own instruction file) | Facts about this repository | Domain, actual schemas, connection details, this repo's verification commands, project coding standards |
-| **Written nowhere** | The repository states it for itself | Toolchain and lint config (`uv.lock`, `pyproject.toml`), existing code style, test commands |
+| **Global** (`CLAUDE.md` / `AGENTS.md` / `GEMINI.md`) | A personal default that applies across projects using that tool, cannot be inferred from the repository or harness, and **remains true in a new project with no code to imitate** | Communication preferences, authorization boundaries, delivery conventions; stack or domain defaults only when genuinely universal |
+| **Per repository** (that repo's own instruction file) | A fact or rule specific to this repository | Architecture, language, domain, schemas, data paths, verification commands, project coding standards |
+| **Written nowhere** | The repository or host harness already states or enforces it | Toolchain and lint config (`uv.lock`, `pyproject.toml`), existing code style, generic safety and workflow behavior |
 
 Two consequences worth stating explicitly:
 
@@ -34,11 +34,11 @@ Two consequences worth stating explicitly:
 
 ### 1. `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (Global Agreements)
 
-Durable cross-project defaults: language, change boundaries, new-project defaults, storage tiers, domain guardrails, subagent policy, deliverables. This file is resident in every session, so it is the one place where size actually matters — keep it short.
+Long-lived personal defaults that belong in every session. The Codex version deliberately stays cross-repository and keeps architecture, project language, stack, domain, data, and verification details local to each repository. The Claude version currently carries additional Python, storage, and quant defaults. This divergence is intentional and should remain explicit. These global files are resident in every session, so keep them short.
 
 ### 2. `config.toml` (Runtime Configuration, Codex only)
 
-Portable defaults for the model, reasoning effort, personality, subagent concurrency, and memories.
+Portable model, reasoning-effort, feature, and memory defaults. Keep machine-generated plugin, MCP, notification, and trusted-project settings out of these files. Because the current portable configuration contains no localized prose, `codex/config.toml` and `codex_zh/config.toml` should remain byte-identical.
 
 ### 3. `agents/*.toml` or `agents/*.md` (Specialized Personas)
 

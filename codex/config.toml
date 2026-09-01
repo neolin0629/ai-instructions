@@ -1,13 +1,8 @@
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
-personality = "pragmatic"
-
-[agents]
-max_concurrent_threads_per_session = 4
 
 [features]
 memories = true
 
 [memories]
-generate_memories = true
-use_memories = true
+disable_on_external_context = true
