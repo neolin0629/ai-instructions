@@ -47,7 +47,7 @@ Narrow, optional roles loaded **only** when that agent is spawned. Because they 
 - **`product_manager`**: Focused requirements, Lite PRDs, scope, user stories, and research briefs.
 - **`architect`**: Architecture, data models, interfaces, system flows, and implementation plans; no production code.
 - **`code_review`**: Independent, read-only review of correctness, regressions, security, test gaps, and material risks.
-- **`writer`** (Claude only): Articles, reports, explainers, tutorials, READMEs, and notes.
+- **`writer`** (Claude & Antigravity): Articles, reports, explainers, tutorials, READMEs, and notes.
 
 Domain-specific checks inside a generic agent are written as **conditional one-liners** ("for time-series or quant code, check … when relevant") so the agent stays generally useful and the check fires only when it applies.
 
@@ -73,6 +73,7 @@ Standards that need to be resident to be useful, but should be tailored per proj
 ### Antigravity (Gemini)
 
 1. **`GEMINI.md`**: Global agreements.
+2. **`agents/<agent>.md`**: Specialized persona instructions loaded when spawning custom subagents. Antigravity also provides built-in `research` and `self` subagents, plus native planning mode.
 
 *Specific agent files override global instructions in case of conflict.*
 
@@ -89,4 +90,6 @@ Standards that need to be resident to be useful, but should be tailored per proj
    - Sync `templates/` to `~/.claude/templates/`; copy a template into a project when you want it to apply.
 
 3. **Antigravity (Gemini)**:
-   - Copy `gemini/GEMINI.md` (or `gemini_zh/GEMINI.md`) to your project root.
+   - Copy `gemini/GEMINI.md` (or `gemini_zh/GEMINI.md`) to `~/.gemini/`. **The filename must stay `GEMINI.md`** — a renamed file (`GEMINI_zh.md`) is not loaded at all.
+   - Sync `agents/` to `~/.gemini/agents/`.
+   - Sync `templates/` to `~/.gemini/templates/`; copy a template into a project when you want it to apply.

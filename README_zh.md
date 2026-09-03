@@ -47,7 +47,7 @@
 - **`product_manager`**：聚焦需求、Lite PRD、范围、用户故事和研究简报。
 - **`architect`**：负责架构、数据模型、接口、系统流程和实施计划，不编写生产代码。
 - **`code_review`**：独立、只读地检查正确性、回归、安全、测试缺口和实质性风险。
-- **`writer`**（仅 Claude）：文章、报告、说明、教程、README、纪要。
+- **`writer`**（Claude 与 Antigravity）：文章、报告、说明、教程、README、纪要。
 
 通用 agent 里的领域检查写成**条件式一行**（「涉及时序或量化代码时，按相关性检查……」），这样 agent 保持通用，检查只在相关时触发。
 
@@ -73,6 +73,7 @@
 ### Antigravity (Gemini)
 
 1. **`GEMINI.md`**：全局约定。
+2. **`agents/<agent>.md`**：生成自定义子 Agent 角色时加载的专属设定。Antigravity 原生提供内置的 `research` 与 `self` 子 Agent，以及内置 Planning Mode。
 
 *若规则发生冲突，专业 Agent 文件的优先级高于全局指令。*
 
@@ -89,4 +90,6 @@
    - 将 `templates/` 同步到 `~/.claude/templates/`；需要生效时把模板复制进具体项目。
 
 3. **Antigravity (Gemini)**:
-   - 将 `gemini/GEMINI.md`（或 `gemini_zh/GEMINI.md`）复制到项目根目录。
+   - 将 `gemini/GEMINI.md`（或 `gemini_zh/GEMINI.md`）复制到 `~/.gemini/`。**文件名必须保持 `GEMINI.md`** —— 改名（比如 `GEMINI_zh.md`）会导致它完全不被加载。
+   - 将 `agents/` 同步到 `~/.gemini/agents/`。
+   - 将 `templates/` 同步到 `~/.gemini/templates/`；需要生效时把模板复制进具体项目。
