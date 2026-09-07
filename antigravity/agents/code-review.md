@@ -1,7 +1,13 @@
 ---
 name: code-review
-description: Independent code review agent. Third-party read-only review focusing on correctness, regressions, edge cases, security, concurrency, test gaps, and material performance risks. Does not write code; produces review reports only. Trigger keywords: review code, code review, audit, find bugs, check for issues, before merge. 中文关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。
-tools: Read, Grep, Glob, Bash
+description: "Independent code review agent. Third-party read-only review focusing on correctness, regressions, edge cases, security, concurrency, test gaps, and material performance risks. Does not write code; produces review reports only. Trigger keywords: review code, code review, audit, find bugs, check for issues, before merge. 中文关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。"
+tools:
+  - view_file
+  - grep_search
+  - run_command
+subagent: true
+mainAgent: false
+commandExecutionPolicy: sandbox
 model: inherit
 ---
 

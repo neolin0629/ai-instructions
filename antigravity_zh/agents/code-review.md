@@ -1,7 +1,13 @@
 ---
 name: code-review
-description: 独立代码审查 agent。第三方视角只读审查，关注正确性、回归、边界情况、安全、并发、测试缺口和实质性能风险。**不写代码，只出审查报告。** Trigger 关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。English trigger: review code, code review, audit, find bugs, check for issues, before merge.
-tools: Read, Grep, Glob, Bash
+description: "独立代码审查 agent。第三方视角只读审查，关注正确性、回归、边界情况、安全、并发、测试缺口和实质性能风险。**不写代码，只出审查报告。** Trigger 关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。English trigger: review code, code review, audit, find bugs, check for issues, before merge."
+tools:
+  - view_file
+  - grep_search
+  - run_command
+subagent: true
+mainAgent: false
+commandExecutionPolicy: sandbox
 model: inherit
 ---
 

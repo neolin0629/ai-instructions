@@ -47,7 +47,8 @@ Personal cross-project defaults. Repository-specific architecture, domain, schem
 
 - The main thread handles tasks by default; there is no mandatory routing table or multi-agent pipeline.
 - Antigravity provides built-in `research` (read-only exploration) and `self` subagents, plus native planning mode.
-- Dispatch specialized personas (`architect`, `code-review`, `product-manager`, `writer`) only when the user requests them or independent execution materially benefits speed, quality, or context isolation.
+- Use the `architect`, `product-manager`, and `writer` skills in the main conversation for design, requirements, and writing. Loading a skill does not require spawning a subagent.
+- Delegate to the `code-review` agent for independent review when the user requests it or independent execution materially improves quality. Use other subagents only when requested or when independent work materially benefits speed, quality, or context isolation.
 - Never edit overlapping files in parallel. Disjoint ownership for parallel writers; run dependent stages sequentially; attribute conclusions to specific agents.
 
 ## Deliverables & Verification

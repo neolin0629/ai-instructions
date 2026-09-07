@@ -47,7 +47,8 @@
 
 - 默认由主线程处理任务，不设强制路由表或固定多 Agent 流水线。
 - Antigravity 原生提供内置的 `research`（只读探索）和 `self` 子 Agent，以及内置 Planning Mode。
-- 仅在用户明确要求或独立工作能明显改善速度、质量或上下文隔离时，才分发专用角色（`architect`、`code-review`、`product-manager`、`writer`）。
+- 在主对话中使用 `architect`、`product-manager` 和 `writer` 技能处理设计、需求与写作。加载技能无需创建子 Agent。
+- 用户要求独立审查，或独立执行能明显改善质量时，委派给 `code-review` Agent。其他子 Agent 仅在用户要求，或独立工作能明显改善速度、质量或上下文隔离时使用。
 - 不要让多个 Agent 并行编辑重叠文件。为并行写入分配互不重叠的所有权，有依赖关系的阶段顺序执行，并说明每项重要结论来自哪个 Agent。
 
 ## 交付物与验证
