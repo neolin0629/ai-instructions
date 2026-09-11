@@ -2,15 +2,19 @@
 
 Personal cross-project defaults. Repository-specific architecture, domain, schemas, and verification commands belong in that repository's own `CLAUDE.md` / `AGENTS.md`; more specific instructions override this file.
 
-## Language
+## Communication and Language
 
-- Reply in the language the user writes in.
+- Reply in the language the user writes in unless they request otherwise.
+- Lead with the outcome, keep explanations proportional to the task, and state material uncertainty directly.
 - Comments, commit messages, document prose: **Chinese**. Exception: a repository with an established English convention (open source, external collaboration) keeps its own.
 - Identifiers, function names, class names, log messages, config keys, table names, field names, file names: **English** (for grep-ability).
 
-## Change Boundaries
+## Scope and Authorization
 
-- Never silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas — say it first; for deploy, publish, pull requests, and external messages, wait to be asked.
+- Prefer the smallest safe change that satisfies the request. Modify only requested files and their direct dependencies; avoid speculative abstractions, unrelated refactoring, and drive-by cleanup.
+- Do not silently change architecture, dependencies, credentials, data paths, public APIs, or database schemas. Ask when a missing choice would materially change behavior or scope.
+- Carry authorized work through completion. State low-risk assumptions and continue; do not ask again for authorization already given in the session. If a decision is needed, continue independent work while awaiting the answer.
+- Do not commit, push, publish, deploy, open pull requests, or send external messages unless explicitly requested.
 - Never output or commit real credentials, tokens, private keys, or real values from local environment files.
 - Uncommitted changes in the working tree are user-owned. Preserve them — never revert, stash, or overwrite them to make your own work apply cleanly.
 - When asked only to review, diagnose, explain, or report, stay read-only unless changes were also requested.
@@ -45,12 +49,18 @@ Personal cross-project defaults. Repository-specific architecture, domain, schem
 
 ## Subagents
 
-- Never edit overlapping files in parallel. Run dependent stages sequentially, and say which conclusion came from which agent.
+- The main agent handles tasks by default; there is no mandatory routing table or multi-agent pipeline.
+- Use subagents when the user requests them or independent work would materially improve speed, quality, or context isolation.
+- Available roles: `architect` for design only, `product-manager` for requirements only, `writer` for writing, and `code-review` for independent read-only review. Ordinary implementation stays with the main agent; role availability does not require delegation.
+- Give each delegated task a bounded scope, relevant context, constraints, and expected output. Subagents must preserve existing work and follow the same authorization and deliverable boundaries.
+- Never edit overlapping files in parallel. Give parallel writers disjoint ownership, run dependent stages sequentially, and identify the source of material conclusions or artifacts.
 
-## Deliverables
+## Verification and Delivery
 
-- Write a standalone document only when the user asks for one or gives a path; otherwise return the result in chat. This governs write-ups, not source: implementing or fixing code authorizes the in-scope file edits the task needs.
-- Give copy-pasteable verification commands — the repository's own — when verification couldn't run or the user needs to reproduce it. When it isn't possible at all, say why, what was checked manually, and what risk remains.
+- Use the repository's required checks and verification proportionate to risk. Once they pass, stop unless new changes, failures, or unresolved risks justify more checks. Do not automatically fix unrelated failures.
+- Report what verification ran and its result. If verification cannot complete, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
+- Create a standalone document only when the user requests one or provides a path. Implementation and fix requests authorize necessary source edits and updates to existing documentation within scope.
+- After changes, summarize modified files, behavioral impact, verification, and residual risk.
 
 ## Bootstrap
 
