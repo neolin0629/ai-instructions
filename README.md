@@ -55,6 +55,10 @@ Back up existing files before copying, and merge any personal changes you want t
 
 Use `codex_zh/` instead for Chinese. The default is `gpt-6-astra` with `medium` reasoning effort. Custom agents inherit the parent model and reasoning settings unless overridden. This repository includes the `architect` and `product-manager` skills and the `code-review` agent.
 
+The Codex instructions follow OpenAI's [Astra guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra): narrowly scoped skill descriptions, task-relevant reading, and completion through the requested outcome. Skills remain short and self-contained. Design and requirements boundaries apply to their respective phases, so they do not halt an already-authorized implementation.
+
+The config includes the official schema directive for editor validation. Its model, reasoning, and memory values are preserved: `memories.disable_on_external_context = true` excludes conversations using MCP, web search, or tool search from memory generation; it does not disable reading memories. Other settings use host defaults unless configured elsewhere. See the [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference). After installation, try a small fix, a design request, and a read-only review to check routing and completion in your own environment; static validation cannot prove model behavior.
+
 #### Claude Code
 
 1. Copy `claude/CLAUDE.md` to `~/.claude/CLAUDE.md`.

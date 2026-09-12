@@ -1,8 +1,13 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+# 保留 Astra 的日常推理基线；按具体任务调整，避免全局提高开销。
 model = "gpt-6-astra"
 model_reasoning_effort = "medium"
 
+# 未指定的设置沿用宿主默认值；合并时保留已有权限、MCP 和项目配置。
 [features]
 memories = true
 
 [memories]
+# 使用 MCP、网页搜索或工具搜索的对话不参与记忆生成；不控制读取记忆。
 disable_on_external_context = true

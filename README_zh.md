@@ -55,6 +55,10 @@
 
 使用中文版时，将源目录换成 `codex_zh/`。默认模型为 `gpt-6-astra`，推理强度为 `medium`。自定义 Agent 未覆盖模型或推理设置时，继承主 Agent 的设置。本仓库附带 `architect`、`product-manager` 技能和 `code-review` Agent。
 
+Codex 指令参考 OpenAI 的 [Astra 指南](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)：收窄技能描述，按任务需要阅读资料，并持续推进到用户要求的结果。技能保持简短、自包含。设计与需求的边界仅适用于各自阶段，不会阻止已授权的后续实现。
+
+配置附带官方 schema 指令，供编辑器校验。模型、推理强度和记忆设置值保持不变：`memories.disable_on_external_context = true` 将使用 MCP、网页搜索或工具搜索的对话排除在记忆生成之外，不会禁用记忆读取。其他设置若未在别处配置，则沿用宿主默认值，详见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。安装后，可分别尝试小修复、设计请求和只读审查，检查实际环境中的路由与完成行为；静态校验不能证明模型表现。
+
 #### Claude Code
 
 1. 将 `claude/CLAUDE.md` 复制到 `~/.claude/CLAUDE.md`。
