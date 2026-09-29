@@ -1,10 +1,16 @@
 # Template: Python Coding Standards (project level)
 
-**Usage**: copy into the target project's `CLAUDE.md` (or as a section of it) and adapt to that project. This is not an agent — writing code is the main thread's default job and doesn't need a subagent.
+**Usage**: source material for the `python-bootstrap` skill. Adapt the relevant parts into the target project's `CLAUDE.md`; this file is not loaded on its own.
 
-**Relation to global**: language conventions, `uv`, storage tiers, and quant guardrails already live in `~/.claude/CLAUDE.md` and are not repeated here. This template covers implementation-level standards only.
+**Relation to global**: language conventions and `uv` live in `~/.claude/CLAUDE.md`; storage tiers and quant guardrails live in the `quant-guardrails` skill. Neither is repeated here. This template covers implementation-level standards only.
 
 ---
+
+## Stack Defaults (new projects only; existing projects keep their stack)
+
+- Python 3.10+, `from __future__ import annotations` as the first statement — after the module docstring when there is one
+- Data processing: prefer Polars / DuckDB; keep pandas for small data and compatibility
+- Backend service, when one is needed: FastAPI
 
 ## Basics
 
@@ -41,6 +47,7 @@
 - Core numerical computation and pure functions: pytest coverage > 80%, or the repository's own configured threshold when it has one — that wins
 - Tests cover normal inputs, edges (empty, single element, extremes), and abnormal inputs (NaN / Inf)
 - When randomness is involved, fix `random.seed` and `np.random.seed`
+- While iterating, run the single relevant test file or test; run the full suite before reporting done
 - Dependencies go through `pyproject.toml` with dev separated from runtime: `uv sync` / `uv add` / `uv add --dev` / `uv run` / `uv lock`
 
 ```bash

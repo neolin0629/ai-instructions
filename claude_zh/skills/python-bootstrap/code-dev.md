@@ -1,10 +1,16 @@
 # 模板：Python 编码规范（项目级）
 
-**用法**：复制到目标项目的 `CLAUDE.md`（或作为其中一节），按该项目实际情况删改。这不是 agent —— 写代码是主线程的默认工作，不需要为它开 subagent。
+**用法**：`python-bootstrap` skill 的素材。把相关部分按实际情况改写进目标项目的 `CLAUDE.md`；本文件不会被单独加载。
 
-**与全局的关系**：语言约定、`uv`、存储分层、量化护栏已在 `~/.claude/CLAUDE.md`，此处不重复。本模板只放实现层面的规范。
+**与全局的关系**：语言约定和 `uv` 在 `~/.claude/CLAUDE.md`；存储分层和量化护栏在 `quant-guardrails` skill。此处都不重复。本模板只放实现层面的规范。
 
 ---
+
+## 技术栈默认（仅限新项目；已有项目沿用其技术栈）
+
+- Python 3.10+，`from __future__ import annotations` 作为第一条语句 —— 有模块 docstring 时排在它之后
+- 数据处理优先 Polars / DuckDB；pandas 留给小数据和兼容场景
+- 需要后端服务时用 FastAPI
 
 ## 基础
 
@@ -41,6 +47,7 @@
 - 核心数值计算和纯函数 pytest 覆盖率 > 80%；仓库自己配了阈值就以仓库为准
 - 测试覆盖正常输入、边界（空、单元素、极值）、异常输入（NaN / Inf）
 - 涉及随机性时固定 `random.seed` 和 `np.random.seed`
+- 迭代过程中只跑相关的单个测试文件或用例；报告完成前跑完整测试集
 - 依赖走 `pyproject.toml`，dev 与 runtime 分开：`uv sync` / `uv add` / `uv add --dev` / `uv run` / `uv lock`
 
 ```bash
