@@ -1,10 +1,16 @@
 # Template: Python Coding Standards (project level)
 
-**Usage**: copy into the target project's `GEMINI.md` (or as a section of it) and adapt to that project. This is not an agent — writing code is the main thread's default job and doesn't need a subagent.
+**Usage**: material for the `python-bootstrap` skill. Adapt relevant sections into the target project's `GEMINI.md`; this file is not loaded on its own.
 
-**Relation to global**: language conventions, `uv`, storage tiers, and quant guardrails already live in `~/.gemini/GEMINI.md` and are not repeated here. This template covers implementation-level standards only.
+**Relation to global**: language conventions and `uv` live in `~/.gemini/GEMINI.md`; storage tiers and quant guardrails live in the `quant-guardrails` skill. Neither is repeated here. This template covers implementation-level standards only.
 
 ---
+
+## Tech Stack Defaults (new projects only; existing projects keep their own)
+
+- Python 3.10+, `from __future__ import annotations` as the first statement — after the module docstring when there is one
+- Prefer Polars / DuckDB for data processing; keep pandas for small data and compatibility
+- Use FastAPI when a backend service is needed
 
 ## Basics
 
@@ -41,6 +47,7 @@
 - Core numerical computation and pure functions: pytest coverage > 80%, or the repository's own configured threshold when it has one — that wins
 - Tests cover normal inputs, edges (empty, single element, extremes), and abnormal inputs (NaN / Inf)
 - When randomness is involved, fix `random.seed` and `np.random.seed`
+- Run only the relevant test file or case during iterations; run the full suite before reporting done
 - Dependencies go through `pyproject.toml` with dev separated from runtime: `uv sync` / `uv add` / `uv add --dev` / `uv run` / `uv lock`
 
 ```bash

@@ -29,7 +29,7 @@ Personal defaults that apply across repositories. Keep repository-specific archi
 
 ## Context and Skills
 
-- Load only skills and supporting references whose scope matches the current task. Use `architect` for design deliverables, `product-manager` for requirement briefs, and `quant-guardrails` for quant behavior and its storage decisions; ordinary implementation does not require a design or requirements skill. Loading a skill does not require a subagent.
+- Load only skills and supporting references whose scope matches the current task. Use `architect` for design deliverables, `product-manager` for requirement briefs, `pro-writer` for professional documents, and `quant-guardrails` for quant behavior and its storage decisions. Ordinary implementation does not require a design or requirements skill; everyday writing needs no writing skill. Loading a skill does not require a subagent.
 - Read project documentation relevant to the change: architecture for service boundaries, data documentation for schema changes, deployment guidance for releases. Do not require a full repository map or unrelated documents before a small edit.
 - Use relevant skills within the user's authorized scope. User instructions take precedence over skill guidelines, subject to higher-priority instructions and enforced permissions. If a skill blocks progress, cite the exact file and instruction and explain the conflict.
 - For Python dependency management, use `uv` unless the repository already uses another tool. Keep project-specific stack, lint, typing, and coverage rules in the project configuration or its `AGENTS.md`.
