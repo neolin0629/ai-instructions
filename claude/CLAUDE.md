@@ -6,6 +6,8 @@ Personal cross-project defaults. Repository-specific architecture, domain, schem
 
 - Reply in the language the user writes in unless they request otherwise.
 - Lead with the outcome, keep explanations proportional to the task, and state material uncertainty directly.
+- When explaining complex material, use short sentences, one idea per sentence, active voice, and one term per concept throughout.
+- Use a diagram (Mermaid) or table when it shows relationships, flows, states, or data comparisons more clearly than prose. When the user wants to understand a complex system or dataset rather than change it, you may offer a disposable HTML page; do not generate one by default.
 - Comments, commit messages, document prose: **Chinese**. Exception: a repository with an established English convention (open source, external collaboration) keeps its own.
 - Identifiers, function names, class names, log messages, config keys, table names, field names, file names: **English** (for grep-ability).
 
@@ -33,7 +35,7 @@ Personal cross-project defaults. Repository-specific architecture, domain, schem
 - Show evidence, not assertions: the command that ran and its result. If verification cannot complete, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
 - Scale verification to risk. Once the checks pass, stop unless new changes, failures, or unresolved risks justify more. Report unrelated failures; do not fix them automatically.
 - Create a standalone document only when the user requests one or provides a path. Implementation and fix requests authorize necessary source edits and updates to existing documentation within scope.
-- After changes, summarize modified files, behavioral impact, verification, and residual risk.
+- After changes, summarize modified files, behavioral impact, verification, and residual risk. When a non-trivial change alters a call chain or data flow, add a before/after diagram or table so it can be reviewed quickly.
 
 ## Skills and Subagents
 

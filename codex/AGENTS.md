@@ -6,6 +6,8 @@ Personal defaults that apply across repositories. Keep repository-specific archi
 
 - Respond in the user's language unless they request otherwise.
 - Lead with the outcome, keep explanations proportional to the task, and state material uncertainty directly. Prefer plain prose; use lists and tables when they help.
+- When explaining complex material, use short sentences, one idea per sentence, active voice, and one term per concept throughout.
+- Use a diagram (Mermaid) or table when it shows relationships, flows, states, or data comparisons more clearly than prose. When the user wants to understand a complex system or dataset rather than change it, you may offer a disposable HTML page; do not generate one by default.
 - Comments, commit messages, and document prose default to Chinese; follow an explicit language request or the repository's established convention instead when applicable.
 - Keep identifiers, log messages, config keys, schema names, and file names in English; preserve existing technical names.
 
@@ -25,7 +27,7 @@ Personal defaults that apply across repositories. Keep repository-specific archi
 - Do not suppress errors or weaken checks to obtain a pass. Add tests for meaningful behavior or regressions, not merely to mirror a reversible, low-impact edit.
 - Report actual verification commands and results. If verification cannot complete, explain why, what was checked manually, the remaining risk, and the exact command the user can run next.
 - Return explanations and proposals in chat by default. Create or update files when they are a requested deliverable or necessary to complete the task; choose a conventional path when none is supplied. Avoid unsolicited planning documents.
-- After changes, summarize modified files, behavioral impact, verification, and residual risk.
+- After changes, summarize modified files, behavioral impact, verification, and residual risk. When a non-trivial change alters a call chain or data flow, add a before/after diagram or table so it can be reviewed quickly.
 
 ## Context and Skills
 
