@@ -6,6 +6,9 @@
     },
     "xiaohongshu": {
       "url": "http://localhost:18060/mcp"
+    },
+    "social-superpowers": {
+      "url": "https://superpowers.social/mcp"
     }
   }
 }

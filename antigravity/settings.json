@@ -25,7 +25,7 @@
       "read_file(//**/.env.*.local)"
     ],
     "deny": [
-      "read_file(~/.ssh)"
+      "read_file(/Users/neolin/.ssh)"
     ]
   }
 }

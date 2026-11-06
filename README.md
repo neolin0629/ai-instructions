@@ -31,7 +31,7 @@ Choose one language per tool. English and Chinese versions are semantically alig
 | `claude/settings.json` | Claude Code permission rules that enforce hard constraints deterministically, such as confirming pushes and sensitive-file reads |
 | `codex/config.toml` | Default Codex model, reasoning effort, and memory settings |
 | `antigravity/settings.json` | Antigravity CLI (`agy`) defaults, sandbox execution policy, model selection, and permission rules |
-| `antigravity/mcp_config.json` | Antigravity global MCP configuration (configured with `context7` and local `xiaohongshu`) |
+| `antigravity/mcp_config.json` | Antigravity global MCP configuration (`context7`, `xiaohongshu`, and `social-superpowers`) |
 | `reference/` | Reference material for authoring instructions; not loaded automatically |
 
 ### Professional capabilities
