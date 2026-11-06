@@ -16,7 +16,7 @@ Global files hold personal defaults; each project's instructions hold its archit
 |---|---|---|---|
 | Codex | `codex/` | `codex_zh/` | `AGENTS.md` |
 | Claude Code | `claude/` | `claude_zh/` | `CLAUDE.md` |
-| Antigravity | `antigravity/` | `antigravity_zh/` | `GEMINI.md` |
+| Antigravity | `antigravity/` | `antigravity_zh/` | `AGENTS.md` |
 
 Choose one language per tool. English and Chinese versions are semantically aligned.
 
@@ -24,12 +24,14 @@ Choose one language per tool. English and Chinese versions are semantically alig
 
 | Module | Purpose |
 |---|---|
-| Global instructions | `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` define communication, authorization boundaries, verification, and delivery |
+| Global instructions | `AGENTS.md` and `CLAUDE.md` define communication, authorization boundaries, verification, and delivery |
 | `skills/` | Task-specific methods loaded as needed within the current conversation |
 | `agents/` | Specialized roles for independently delegated work |
 | `python-bootstrap/code-dev.md` | Python project conventions seed, adapted to individual projects by the `python-bootstrap` skill |
 | `claude/settings.json` | Claude Code permission rules that enforce hard constraints deterministically, such as confirming pushes and sensitive-file reads |
 | `codex/config.toml` | Default Codex model, reasoning effort, and memory settings |
+| `antigravity/settings.json` | Antigravity CLI (`agy`) defaults, sandbox execution policy, model selection, and permission rules |
+| `antigravity/mcp_config.json` | Antigravity global MCP configuration (kept empty by default in favor of CLI tools and on-demand skills) |
 | `reference/` | Reference material for authoring instructions; not loaded automatically |
 
 ### Professional capabilities
@@ -97,11 +99,12 @@ After installation, run `/context` to confirm the instructions and skills loaded
 
 #### Antigravity
 
-1. Copy `antigravity/GEMINI.md` to `~/.gemini/GEMINI.md`.
-2. Copy the files in `antigravity/agents/` to `~/.gemini/config/agents/`.
-3. Copy the skill folders in `antigravity/skills/` to `~/.gemini/config/skills/`.
+1. Copy or symlink `antigravity/AGENTS.md` to `~/.gemini/AGENTS.md`.
+2. Copy or symlink the files in `antigravity/agents/` to `~/.gemini/config/agents/`.
+3. Copy or symlink the skill folders in `antigravity/skills/` to `~/.gemini/config/skills/`.
+4. Copy or symlink `antigravity/mcp_config.json` to `~/.gemini/config/mcp_config.json`, and merge or symlink `antigravity/settings.json` into `~/.gemini/antigravity-cli/settings.json`.
 
-Use `antigravity_zh/` instead for Chinese. Antigravity uses `GEMINI.md` for global instructions and installation paths under `~/.gemini/`. If an older version is installed, delete `~/.gemini/config/skills/writer` and `~/.gemini/templates/` to avoid duplicating or conflicting with updated skills. This repository includes the `architect`, `product-manager`, `pro-writer`, `quant-guardrails`, and `python-bootstrap` skills and the `code-review` agent.
+Use `antigravity_zh/` instead for Chinese. Antigravity natively discovers `AGENTS.md` for both global (`~/.gemini/AGENTS.md`) and project-level instructions. If an older version is installed, delete `~/.gemini/GEMINI.md`, `~/.gemini/config/skills/writer`, and `~/.gemini/templates/` to avoid duplicating or conflicting with updated rules and skills. This repository includes the `architect`, `product-manager`, `pro-writer`, `quant-guardrails`, and `python-bootstrap` skills and the `code-review` agent.
 
 ### Everyday use
 

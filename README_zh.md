@@ -16,7 +16,7 @@
 |---|---|---|---|
 | Codex | `codex/` | `codex_zh/` | `AGENTS.md` |
 | Claude Code | `claude/` | `claude_zh/` | `CLAUDE.md` |
-| Antigravity | `antigravity/` | `antigravity_zh/` | `GEMINI.md` |
+| Antigravity | `antigravity/` | `antigravity_zh/` | `AGENTS.md` |
 
 每个工具选择一种语言即可，中英文版本语义对应。
 
@@ -24,12 +24,14 @@
 
 | 模块 | 用途 |
 |---|---|
-| 全局指令 | `AGENTS.md`、`CLAUDE.md`、`GEMINI.md` 保存沟通、授权边界和验证交付约定 |
+| 全局指令 | `AGENTS.md` 和 `CLAUDE.md` 保存沟通、授权边界和验证交付约定 |
 | `skills/` | 按需加载的专业工作方法，在当前对话中使用 |
 | `agents/` | 可委派的专业角色，用于独立执行任务 |
 | `python-bootstrap/code-dev.md` | Python 项目规范种子，由 `python-bootstrap` 技能按项目需要改写使用 |
 | `claude/settings.json` | Claude Code 的权限规则：确定性执行推送确认、敏感文件读取确认等硬约束 |
 | `codex/config.toml` | Codex 模型、推理强度和记忆功能的默认设置 |
+| `antigravity/settings.json` | Antigravity CLI (`agy`) 默认模式、沙盒策略、模型选择与权限规则 |
+| `antigravity/mcp_config.json` | Antigravity 全局 MCP 配置（默认留空，优先使用 CLI 工具与按需技能） |
 | `reference/` | 供编写指令时参考的材料，不会自动加载 |
 
 ### 专业能力
@@ -97,11 +99,12 @@ Claude Code 指令参考官方[最佳实践](https://code.claude.com/docs/en/bes
 
 #### Antigravity
 
-1. 将 `antigravity/GEMINI.md` 复制到 `~/.gemini/GEMINI.md`。
-2. 将 `antigravity/agents/` 中的文件复制到 `~/.gemini/config/agents/`。
-3. 将 `antigravity/skills/` 中的技能目录复制到 `~/.gemini/config/skills/`。
+1. 将 `antigravity/AGENTS.md` 复制或软链接到 `~/.gemini/AGENTS.md`。
+2. 将 `antigravity/agents/` 中的文件复制或软链接到 `~/.gemini/config/agents/`.
+3. 将 `antigravity/skills/` 中的技能目录复制或软链接到 `~/.gemini/config/skills/`。
+4. 将 `antigravity/mcp_config.json` 复制或软链接到 `~/.gemini/config/mcp_config.json`，并将 `antigravity/settings.json` 合并或软链接到 `~/.gemini/antigravity-cli/settings.json`。
 
-使用中文版时，将源目录换成 `antigravity_zh/`。Antigravity 使用 `GEMINI.md` 作为全局指令文件，安装路径仍位于 `~/.gemini/` 下。如果之前安装过旧版，删除 `~/.gemini/config/skills/writer` 和 `~/.gemini/templates/`，避免与同名技能重复。本仓库附带 `architect`、`product-manager`、`pro-writer`、`quant-guardrails`、`python-bootstrap` 技能和 `code-review` Agent。
+使用中文版时，将源目录换成 `antigravity_zh/`。Antigravity 原生支持 `AGENTS.md` 作为全局（`~/.gemini/AGENTS.md`）与项目级指令文件。如果之前安装过旧版，删除 `~/.gemini/GEMINI.md`、`~/.gemini/config/skills/writer` 和 `~/.gemini/templates/`，避免与新版规则及技能重复冲突。本仓库附带 `architect`、`product-manager`、`pro-writer`、`quant-guardrails`、`python-bootstrap` 技能和 `code-review` Agent。
 
 ### 日常调用
 

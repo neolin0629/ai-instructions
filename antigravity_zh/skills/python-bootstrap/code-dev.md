@@ -1,8 +1,8 @@
 # 模板：Python 编码规范（项目级）
 
-**用法**：`python-bootstrap` skill 的素材。把相关部分按实际情况改写进目标项目的 `GEMINI.md`；本文件不会被单独加载。
+**用法**：`python-bootstrap` skill 的素材。把相关部分按实际情况改写进目标项目的 `AGENTS.md`；本文件不会被单独加载。
 
-**与全局的关系**：语言约定和 `uv` 在 `~/.gemini/GEMINI.md`；存储分层和量化护栏在 `quant-guardrails` skill。此处都不重复。本模板只放实现层面的规范。
+**与全局的关系**：语言约定和 `uv` 在 `~/.gemini/AGENTS.md`；存储分层和量化护栏在 `quant-guardrails` skill。此处都不重复。本模板只放实现层面的规范。
 
 ---
 

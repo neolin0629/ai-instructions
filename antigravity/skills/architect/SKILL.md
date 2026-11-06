@@ -9,7 +9,7 @@ Produce design deliverables without writing production code; pseudocode used for
 
 ## Before Designing
 
-- Read the requirements, applicable `GEMINI.md` / `AGENTS.md` rules, and existing code, tests, and local docs touched by the design. Local changes do not require reading the entire repository.
+- Read the requirements, applicable `AGENTS.md` / `GEMINI.md` rules, and existing code, tests, and local docs touched by the design. Local changes do not require reading the entire repository.
 - When the codebase is large or unfamiliar, delegate exploration to a subagent (such as built-in `research`) and design from its findings.
 - Anchor the design to real problems, scope, constraints, and the existing system; do not expand scope silently.
 

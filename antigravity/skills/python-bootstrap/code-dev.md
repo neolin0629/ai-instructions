@@ -1,8 +1,8 @@
 # Template: Python Coding Standards (project level)
 
-**Usage**: material for the `python-bootstrap` skill. Adapt relevant sections into the target project's `GEMINI.md`; this file is not loaded on its own.
+**Usage**: material for the `python-bootstrap` skill. Adapt relevant sections into the target project's `AGENTS.md`; this file is not loaded on its own.
 
-**Relation to global**: language conventions and `uv` live in `~/.gemini/GEMINI.md`; storage tiers and quant guardrails live in the `quant-guardrails` skill. Neither is repeated here. This template covers implementation-level standards only.
+**Relation to global**: language conventions and `uv` live in `~/.gemini/AGENTS.md`; storage tiers and quant guardrails live in the `quant-guardrails` skill. Neither is repeated here. This template covers implementation-level standards only.
 
 ---
 
