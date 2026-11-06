@@ -31,7 +31,7 @@
 | `claude/settings.json` | Claude Code 的权限规则：确定性执行推送确认、敏感文件读取确认等硬约束 |
 | `codex/config.toml` | Codex 模型、推理强度和记忆功能的默认设置 |
 | `antigravity/settings.json` | Antigravity CLI (`agy`) 默认模式、沙盒策略、模型选择与权限规则 |
-| `antigravity/mcp_config.json` | Antigravity 全局 MCP 配置（默认留空，优先使用 CLI 工具与按需技能） |
+| `antigravity/mcp_config.json` | Antigravity 全局 MCP 配置（包含 `context7` 与本地 `xiaohongshu` 服务） |
 | `reference/` | 供编写指令时参考的材料，不会自动加载 |
 
 ### 专业能力
