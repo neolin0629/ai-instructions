@@ -29,9 +29,11 @@
 | `agents/` | 可委派的专业角色，用于独立执行任务 |
 | `python-bootstrap/code-dev.md` | Python 项目规范种子，由 `python-bootstrap` 技能按项目需要改写使用 |
 | `claude/settings.json` | Claude Code 的权限规则：确定性执行推送确认、敏感文件读取确认等硬约束 |
-| `codex/config.toml` | Codex 模型、推理强度和记忆功能的默认设置 |
-| `antigravity/settings.json` | Antigravity CLI (`agy`) 默认模式、沙盒策略、模型选择与权限规则 |
-| `antigravity/mcp_config.json` | Antigravity 全局 MCP 配置（包含 `context7`、`xiaohongshu` 与 `social-superpowers` 服务） |
+| `codex/config.toml` | Codex 模型、推理、记忆、默认启用的 Context7 和默认关闭的社媒插件设置 |
+| `codex/marketplace.json` + `plugins/social-mcp/` | 个人插件目录模板与按需社媒 MCP 插件 |
+| `antigravity/settings.json` | Antigravity CLI (`agy`) 默认模式、沙盒策略、模型选择（`Gemini 4 Carbon`）与命令前缀权限 |
+| `antigravity/mcp_config.json` | Antigravity 常驻全局 MCP 配置（仅保留通用研发服务 `context7`） |
+| `antigravity/plugins/social-mcp/` | 按需启停的社媒 MCP 插件包（`xiaohongshu` 与 `social-superpowers`，默认关闭） |
 | `reference/` | 供编写指令时参考的材料，不会自动加载 |
 
 ### 专业能力
@@ -79,6 +81,22 @@ Codex 指令参考 OpenAI 的 [Astra 指南](https://developers.openai.com/blog/
 
 配置附带官方 schema 指令，供编辑器校验。模型、推理强度和记忆设置值保持不变：`memories.disable_on_external_context = true` 将使用 MCP、网页搜索或工具搜索的对话排除在记忆生成之外，不会禁用记忆读取。其他设置若未在别处配置，则沿用宿主默认值，详见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。安装后，可分别尝试小修复、设计请求和只读审查，检查实际环境中的路由与完成行为；静态校验不能证明模型表现。
 
+##### MCP 与按需社媒插件
+
+Context7 默认启用，使用 `npx -y @upstash/context7-mcp`；需要 Node.js / npm，首次运行需要网络下载包。保留本机已有的 Context7 认证配置，不把真实凭据写入仓库。`node_repl`、`computer-use` 等桌面组件由宿主管理，不复制其应用路径和环境变量。
+
+社媒插件使用官方 [插件格式与个人 marketplace 机制](https://developers.openai.com/plugins/build/plugins)，按以下步骤安装（中文版将源目录换成 `codex_zh/`）：
+
+1. 将 `codex/plugins/social-mcp/` 复制到 `~/.codex/plugins/social-mcp/`。
+2. 将 `codex/marketplace.json` 安装到 `~/.agents/plugins/marketplace.json`。已有文件时合并插件条目，不覆盖其他条目；模板中的相对路径以个人 marketplace 根目录 `~` 为基准。若保留已有 marketplace 名称，将配置中的 `social-mcp@ai-instructions` 同步改为 `social-mcp@你的名称`。
+3. 确认已合并 `config.toml` 中的插件设置，`enabled = false`。重启桌面宿主，在插件目录中找到并安装 `social-mcp`；安装后确认它仍为禁用状态。仅复制插件目录不等于完成安装。
+4. 从旧的全局 `[mcp_servers]` 中移除或禁用 `xiaohongshu`、`social-superpowers`，避免重复连接，也避免插件关闭后全局连接仍启用。保留其他 MCP 设置。
+5. 需要使用时，将 `[plugins."social-mcp@ai-instructions"]` 的 `enabled` 改为 `true`；用完改回 `false`，并重启宿主或 CLI 会话使设置生效。在 CLI 中用 `/mcp` 检查连接状态。
+
+插件仅配置连接，不安装或启动后台服务：小红书需要在 MCP 执行环境中运行 `http://localhost:18060/mcp` 服务，并完成账号登录；Social Superpowers 连接 `https://superpowers.social/mcp`，需要网络及服务要求的认证。其他机器或远程执行环境应先调整源插件的 `mcp.json` 地址，再重新安装或刷新插件缓存。禁用插件不会停止你自行运行的小红书进程。
+
+插件不包含凭据，也不授予发布或互动权限；发布、评论、点赞等操作仍需用户授权。本仓库默认关闭的是整个插件；配置合并和安装均需完成后，这个默认值才生效。详见 [MCP 配置](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)。
+
 #### Claude Code
 
 1. 将 `claude/CLAUDE.md` 复制到 `~/.claude/CLAUDE.md`。
@@ -100,11 +118,11 @@ Claude Code 指令参考官方[最佳实践](https://code.claude.com/docs/en/bes
 #### Antigravity
 
 1. 将 `antigravity/AGENTS.md` 复制或软链接到 `~/.gemini/AGENTS.md`。
-2. 将 `antigravity/agents/` 中的文件复制或软链接到 `~/.gemini/config/agents/`.
+2. 将 `antigravity/agents/` 中的文件复制或软链接到 `~/.gemini/config/agents/`。
 3. 将 `antigravity/skills/` 中的技能目录复制或软链接到 `~/.gemini/config/skills/`。
-4. 将 `antigravity/mcp_config.json` 复制或软链接到 `~/.gemini/config/mcp_config.json`，并将 `antigravity/settings.json` 合并或软链接到 `~/.gemini/antigravity-cli/settings.json`。
+4. 将 `antigravity/mcp_config.json` 复制或软链接到 `~/.gemini/config/mcp_config.json`，将 `antigravity/plugins/social-mcp` 复制或软链接到 `~/.gemini/config/plugins/social-mcp`，并将 `antigravity/settings.json` 合并或软链接到 `~/.gemini/antigravity-cli/settings.json`。
 
-使用中文版时，将源目录换成 `antigravity_zh/`。Antigravity 原生支持 `AGENTS.md` 作为全局（`~/.gemini/AGENTS.md`）与项目级指令文件。如果之前安装过旧版，删除 `~/.gemini/GEMINI.md`、`~/.gemini/config/skills/writer` 和 `~/.gemini/templates/`，避免与新版规则及技能重复冲突。本仓库附带 `architect`、`product-manager`、`pro-writer`、`quant-guardrails`、`python-bootstrap` 技能和 `code-review` Agent。
+使用中文版时，将源目录换成 `antigravity_zh/`。Antigravity 原生支持 `AGENTS.md` 作为全局（`~/.gemini/AGENTS.md`）与项目级指令文件。`social-mcp` 插件默认关闭，避免日常研发时尝试连接本地社媒服务；需要时运行 `agy plugin enable social-mcp`（或在 `/plugin` 面板开启），用完运行 `agy plugin disable social-mcp` 关闭；单个全局 MCP 服务也可通过 `agy mcp enable <name>` / `agy mcp disable <name>` 按需开关。如果之前安装过旧版，删除 `~/.gemini/GEMINI.md`、`~/.gemini/config/skills/writer` 和 `~/.gemini/templates/`，并在手动合并时移除 `mcp_config.json` 中旧的全局社媒条目及 `settings.json` 中旧的 `//**/.env*` 与尾随 ` *` 规则，避免与新版规则及插件冲突。本仓库附带 `architect`、`product-manager`、`pro-writer`、`quant-guardrails`、`python-bootstrap` 技能、`code-review` Agent 与 `social-mcp` 按需插件。
 
 ### 日常调用
 

@@ -1,6 +1,6 @@
 ---
 name: python-bootstrap
-description: "为 Python 项目的 AGENTS.md 落地或刷新编码、测试、性能规范，并按该仓库实际情况改写。"
+description: "为 Python 项目的 AGENTS.md 落地或刷新编码、测试、性能规范，并按该仓库实际情况改写。仅在用户明确要求初始化或更新项目 Python 规范文档时使用；日常编写或修改 Python 代码时不触发。"
 ---
 
 # Python Bootstrap

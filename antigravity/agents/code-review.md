@@ -2,11 +2,9 @@
 name: code-review
 description: "Independent read-only code review agent. Reviews diffs in a fresh context focusing on correctness, regressions, edge cases, security, concurrency, and test gaps. Produces review reports only; does not edit files. Used before reporting done on non-trivial or risky changes, or when requested. Trigger keywords: review code, code review, audit, find bugs, before merge. 中文关键词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。"
 tools:
-  - view_file
-  - list_dir
-  - grep_search
-  - find_by_name
+  - read_file
   - run_command
+  - manage_task
 subagent: true
 mainAgent: false
 commandExecutionPolicy: sandbox

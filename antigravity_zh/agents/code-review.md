@@ -2,11 +2,9 @@
 name: code-review
 description: "独立只读代码审查 agent。在全新上下文中审查 diff 的正确性、回归、边界情况、安全、并发和测试缺口；只出审查报告，不改文件。完成非平凡或有风险的改动后、报告完成之前使用；用户要求审代码、找 bug、合并前检查时也使用。触发词：审代码、code review、找 bug、检查一下、合并前看一遍、风险评估、隐患、看看这段代码。English trigger: review code, code review, audit, find bugs, before merge."
 tools:
-  - view_file
-  - list_dir
-  - grep_search
-  - find_by_name
+  - read_file
   - run_command
+  - manage_task
 subagent: true
 mainAgent: false
 commandExecutionPolicy: sandbox

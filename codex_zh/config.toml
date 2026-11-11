@@ -11,3 +11,13 @@ memories = true
 [memories]
 # 使用 MCP、网页搜索或工具搜索的对话不参与记忆生成；不控制读取记忆。
 disable_on_external_context = true
+
+# 通用研发文档查询；需要 Node.js / npx，首次运行会下载包。
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+enabled = true
+
+# 安装方式见 README；按需启用，不重复配置全局社媒 MCP。
+[plugins."social-mcp@ai-instructions"]
+enabled = false

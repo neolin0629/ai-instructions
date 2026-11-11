@@ -1,0 +1,7 @@
+{
+  "name": "social-mcp",
+  "displayName": "Social Media MCP",
+  "version": "1.0.0",
+  "description": "On-demand MCP servers for Xiaohongshu and social media research (disabled by default).",
+  "disabled": true
+}

@@ -29,9 +29,11 @@ Choose one language per tool. English and Chinese versions are semantically alig
 | `agents/` | Specialized roles for independently delegated work |
 | `python-bootstrap/code-dev.md` | Python project conventions seed, adapted to individual projects by the `python-bootstrap` skill |
 | `claude/settings.json` | Claude Code permission rules that enforce hard constraints deterministically, such as confirming pushes and sensitive-file reads |
-| `codex/config.toml` | Default Codex model, reasoning effort, and memory settings |
-| `antigravity/settings.json` | Antigravity CLI (`agy`) defaults, sandbox execution policy, model selection, and permission rules |
-| `antigravity/mcp_config.json` | Antigravity global MCP configuration (`context7`, `xiaohongshu`, and `social-superpowers`) |
+| `codex/config.toml` | Codex model, reasoning, memory, enabled Context7, and disabled social plugin defaults |
+| `codex/marketplace.json` + `plugins/social-mcp/` | Personal marketplace template and on-demand social MCP plugin |
+| `antigravity/settings.json` | Antigravity CLI (`agy`) defaults, sandbox execution policy, model selection (`Gemini 4 Carbon`), and command prefix permissions |
+| `antigravity/mcp_config.json` | Antigravity resident global MCP configuration (`context7` only) |
+| `antigravity/plugins/social-mcp/` | On-demand social media MCP plugin (`xiaohongshu` and `social-superpowers`, disabled by default) |
 | `reference/` | Reference material for authoring instructions; not loaded automatically |
 
 ### Professional capabilities
@@ -79,6 +81,22 @@ The table below describes this repository's instruction choices when adapting Cl
 
 The config includes the official schema directive for editor validation. Its model, reasoning, and memory values are preserved: `memories.disable_on_external_context = true` excludes conversations using MCP, web search, or tool search from memory generation; it does not disable reading memories. Other settings use host defaults unless configured elsewhere. See the [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference). After installation, try a small fix, a design request, and a read-only review to check routing and completion in your own environment; static validation cannot prove model behavior.
 
+##### MCP and the on-demand social plugin
+
+Context7 is enabled by default through `npx -y @upstash/context7-mcp`. It requires Node.js / npm and network access for the initial package download. Preserve existing local Context7 authentication settings; never copy real credentials into this repository. Leave desktop components such as `node_repl` and `computer-use` to the host rather than copying application paths and environment variables.
+
+Install the social plugin using the official [plugin format and personal marketplace mechanism](https://developers.openai.com/plugins/build/plugins). Substitute `codex_zh/` for Chinese:
+
+1. Copy `codex/plugins/social-mcp/` to `~/.codex/plugins/social-mcp/`.
+2. Install `codex/marketplace.json` at `~/.agents/plugins/marketplace.json`. If that file exists, merge the plugin entry without replacing other entries. The template path is relative to the personal marketplace root, `~`. If you keep an existing marketplace name, change `social-mcp@ai-instructions` in the config to `social-mcp@your-name` as well.
+3. Ensure the plugin settings from `config.toml` are merged with `enabled = false`. Restart the desktop host, find and install `social-mcp` in the plugin directory, and verify it remains disabled after installation. Copying the plugin folder alone does not complete installation.
+4. Remove or disable old global `[mcp_servers]` entries for `xiaohongshu` and `social-superpowers` to avoid duplicate connections or a global connection remaining enabled while the plugin is disabled. Preserve other MCP settings.
+5. When needed, set `enabled = true` under `[plugins."social-mcp@ai-instructions"]`; restore `false` afterward. Restart the host or CLI session for changes to take effect. Use `/mcp` in the CLI to inspect connections.
+
+The plugin configures connections; it does not install or start backend services. Xiaohongshu requires a service running at `http://localhost:18060/mcp` in the MCP execution environment and a logged-in account. Social Superpowers connects to `https://superpowers.social/mcp` and needs network access and any authentication required by that service. For another machine or remote executor, adjust the source plugin's `mcp.json` endpoints before reinstalling or refreshing its cached copy. Disabling the plugin does not stop a Xiaohongshu process you run separately.
+
+The plugin contains no credentials and grants no publishing or interaction authorization; posting, commenting, and liking still require user authorization. The whole plugin defaults to disabled once the configuration is merged and installation is complete. See [MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
 #### Claude Code
 
 1. Copy `claude/CLAUDE.md` to `~/.claude/CLAUDE.md`.
@@ -102,9 +120,9 @@ After installation, run `/context` to confirm the instructions and skills loaded
 1. Copy or symlink `antigravity/AGENTS.md` to `~/.gemini/AGENTS.md`.
 2. Copy or symlink the files in `antigravity/agents/` to `~/.gemini/config/agents/`.
 3. Copy or symlink the skill folders in `antigravity/skills/` to `~/.gemini/config/skills/`.
-4. Copy or symlink `antigravity/mcp_config.json` to `~/.gemini/config/mcp_config.json`, and merge or symlink `antigravity/settings.json` into `~/.gemini/antigravity-cli/settings.json`.
+4. Copy or symlink `antigravity/mcp_config.json` to `~/.gemini/config/mcp_config.json`, copy or symlink `antigravity/plugins/social-mcp` to `~/.gemini/config/plugins/social-mcp`, and merge or symlink `antigravity/settings.json` into `~/.gemini/antigravity-cli/settings.json`.
 
-Use `antigravity_zh/` instead for Chinese. Antigravity natively discovers `AGENTS.md` for both global (`~/.gemini/AGENTS.md`) and project-level instructions. If an older version is installed, delete `~/.gemini/GEMINI.md`, `~/.gemini/config/skills/writer`, and `~/.gemini/templates/` to avoid duplicating or conflicting with updated rules and skills. This repository includes the `architect`, `product-manager`, `pro-writer`, `quant-guardrails`, and `python-bootstrap` skills and the `code-review` agent.
+Use `antigravity_zh/` instead for Chinese. Antigravity natively discovers `AGENTS.md` for both global (`~/.gemini/AGENTS.md`) and project-level instructions. The `social-mcp` plugin ships disabled so coding sessions never probe local social-media endpoints; enable it when needed with `agy plugin enable social-mcp` (or via `/plugin`), and turn it back off with `agy plugin disable social-mcp`. Individual global MCP servers can also be toggled via `agy mcp enable <name>` / `agy mcp disable <name>`. If an older version is installed, delete `~/.gemini/GEMINI.md`, `~/.gemini/config/skills/writer`, and `~/.gemini/templates/`, and when merging manually, remove old global social-media entries from `mcp_config.json` as well as legacy `//**/.env*` and trailing ` *` rules from `settings.json` to avoid duplicating or conflicting with updated rules and plugins. This repository includes the `architect`, `product-manager`, `pro-writer`, `quant-guardrails`, and `python-bootstrap` skills, the `code-review` agent, and the on-demand `social-mcp` plugin.
 
 ### Everyday use
 

@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Designs architecture, data models, module and interface boundaries, and call flows, and provides dependency-ordered implementation plans without writing production code. Use when the user requests system design, tech selection, schema or API design, task breakdown, architecture diagrams, or sequence diagrams. 触发词：系统设计、架构设计、技术选型、方案设计、模块划分、接口设计、数据建模、表结构设计、任务拆解、画架构图、画时序图。"
+description: "Designs architecture, data models, module and interface boundaries, and call flows, and provides dependency-ordered implementation plans without writing production code. Use when the user requests system design, tech selection, schema or API design, task breakdown, architecture diagrams, or sequence diagrams. 触发词：系统设计、架构设计、技术选型、方案设计、模块划分、接口设计、数据建模、表结构设计、任务拆解、依赖分析、画架构图、画时序图。"
 ---
 
 # Architecture Design
@@ -24,7 +24,7 @@ Produce design deliverables without writing production code; pseudocode used for
 
 ## Implementation Plan (when requested)
 
-- Break into single-developer tasks ordered by dependency; do not pad task count.
+- Break into single-developer tasks ordered by dependency; do not pad task count. Mark parallelizable boundaries when independent modules touch disjoint files.
 - Keep the plan self-contained: identify files and interfaces touched, state what is out of scope, provide acceptance criteria for each task, and finish with an end-to-end verification step.
 
 ## Output

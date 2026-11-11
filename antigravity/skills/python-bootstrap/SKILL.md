@@ -1,6 +1,6 @@
 ---
 name: python-bootstrap
-description: "Seed or refresh a Python project's AGENTS.md with coding, testing, and performance conventions adapted to that repository."
+description: "Seed or refresh a Python project's AGENTS.md with coding, testing, and performance conventions adapted to that repository. Use only when explicitly asked to initialize or update project-level Python guidelines; do not trigger during ordinary Python coding."
 ---
 
 # Python Bootstrap

@@ -1,0 +1,7 @@
+{
+  "name": "social-mcp",
+  "displayName": "社交媒体 MCP",
+  "version": "1.0.0",
+  "description": "小红书与社媒调研按需 MCP 服务包（默认关闭，使用时通过命令或面板启用）。",
+  "disabled": true
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "social-mcp",
+  "version": "1.0.0",
+  "description": "On-demand Xiaohongshu and Social Superpowers connections; disabled by default through Codex config."
+}

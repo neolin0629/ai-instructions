@@ -11,21 +11,15 @@
   "verbosity": "medium",
   "queuedMessages": "queue",
   "notifications": true,
-  "model": "Gemini 4 Argon (Medium)",
+  "model": "Gemini 4 Carbon (Medium)",
   "permissions": {
     "allow": [
-      "command(uv run pytest *)",
-      "command(uv run ruff check *)",
-      "command(uv run ruff format *)"
+      "command(uv run pytest)",
+      "command(uv run ruff check)",
+      "command(uv run ruff format)"
     ],
     "ask": [
-      "command(git push *)",
-      "read_file(//**/.env)",
-      "read_file(//**/.env.local)",
-      "read_file(//**/.env.*.local)"
-    ],
-    "deny": [
-      "read_file(/Users/neolin/.ssh)"
+      "command(git push)"
     ]
   }
 }

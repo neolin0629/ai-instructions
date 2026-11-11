@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "social-mcp",
+  "version": "1.0.0",
+  "description": "按需连接小红书与 Social Superpowers；默认关闭由 Codex 配置控制。"
+}
